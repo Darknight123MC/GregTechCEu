@@ -128,7 +128,11 @@ public class GTValues {
             MODID_GROOVYSCRIPT = "groovyscript",
             MODID_NC = "nuclearcraft",
             MODID_IE = "immersiveengineering",
-            MODID_OC = "opencomputers";
+            MODID_OC = "opencomputers",
+            MODID_IC2 = "ic2",
+            MODID_BINNIE = "binniecore",
+            MODID_XU2 = "extrautils2",
+            MODID_TR = "techreborn";
 
     private static Boolean isClient;
 

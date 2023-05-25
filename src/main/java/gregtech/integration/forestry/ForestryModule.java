@@ -3,10 +3,13 @@ package gregtech.integration.forestry;
 import forestry.api.core.ForestryAPI;
 import gregtech.api.GTValues;
 import gregtech.api.GregTechAPI;
+import gregtech.api.items.metaitem.MetaItem;
+import gregtech.api.items.metaitem.StandardMetaItem;
 import gregtech.api.modules.GregTechModule;
 import gregtech.api.unification.material.Materials;
 import gregtech.api.unification.material.info.MaterialFlags;
 import gregtech.integration.IntegrationSubmodule;
+import gregtech.integration.forestry.electrodes.ElectrodeRecipes;
 import gregtech.integration.forestry.frames.FrameRecipes;
 import gregtech.integration.forestry.frames.GTFrameType;
 import gregtech.integration.forestry.frames.GTItemFrame;
@@ -15,6 +18,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -42,6 +47,23 @@ public class ForestryModule extends IntegrationSubmodule {
     public static GTItemFrame frameStabilizing;
     public static GTItemFrame frameArborist;
 
+    public static MetaItem<?> forestryMetaItem;
+
+    public static MetaItem<?>.MetaValueItem electrodeApatite;
+    public static MetaItem<?>.MetaValueItem electrodeBlaze;
+    public static MetaItem<?>.MetaValueItem electrodeBronze;
+    public static MetaItem<?>.MetaValueItem electrodeCopper;
+    public static MetaItem<?>.MetaValueItem electrodeDiamond;
+    public static MetaItem<?>.MetaValueItem electrodeEmerald;
+    public static MetaItem<?>.MetaValueItem electrodeEnder;
+    public static MetaItem<?>.MetaValueItem electrodeGold;
+    public static MetaItem<?>.MetaValueItem electrodeIron;
+    public static MetaItem<?>.MetaValueItem electrodeLapis;
+    public static MetaItem<?>.MetaValueItem electrodeObsidian;
+    public static MetaItem<?>.MetaValueItem electrodeOrchid;
+    public static MetaItem<?>.MetaValueItem electrodeRubber;
+    public static MetaItem<?>.MetaValueItem electrodeTin;
+
     @Nonnull
     @Override
     public List<Class<?>> getEventBusSubscribers() {
@@ -50,6 +72,9 @@ public class ForestryModule extends IntegrationSubmodule {
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
+        forestryMetaItem = new StandardMetaItem();
+        forestryMetaItem.setRegistryName("forestry_meta_item");
+
         // GT Frames
         if (ForestryConfig.enableGTFrames) {
             if (ForestryUtil.apicultureEnabled()) {
@@ -66,9 +91,21 @@ public class ForestryModule extends IntegrationSubmodule {
         }
     }
 
+    @Override
+    public void init(FMLInitializationEvent event) {
+        // Yes, this stuff has to be done in init. Because Forestry refuses to move their recipes to the event,
+        // causing removals to need to be done in init instead of registry event.
+        // See https://github.com/ForestryMC/ForestryMC/issues/2599
+        if (ForestryConfig.enableGTElectronTubes) {
+            ElectrodeRecipes.onInit();
+        }
+    }
+
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         IForgeRegistry<Item> registry = event.getRegistry();
+
+        // GT Frames
         if (ForestryUtil.apicultureEnabled()) {
             if (ForestryConfig.enableGTFrames) {
                 registry.register(frameAccelerated);
@@ -78,6 +115,31 @@ public class ForestryModule extends IntegrationSubmodule {
                 registry.register(frameSlowing);
                 registry.register(frameStabilizing);
                 registry.register(frameArborist);
+            }
+        }
+
+        // GT Electrodes
+        if (ForestryConfig.enableGTElectronTubes) {
+            electrodeApatite = forestryMetaItem.addItem(1, "electrode.apatite");
+            electrodeBlaze = forestryMetaItem.addItem(2, "electrode.blaze");
+            electrodeBronze = forestryMetaItem.addItem(3, "electrode.bronze");
+            electrodeCopper = forestryMetaItem.addItem(4, "electrode.copper");
+            electrodeDiamond = forestryMetaItem.addItem(5, "electrode.diamond");
+            electrodeEmerald = forestryMetaItem.addItem(6, "electrode.emerald");
+            electrodeEnder = forestryMetaItem.addItem(7, "electrode.ender");
+            electrodeGold = forestryMetaItem.addItem(8, "electrode.gold");
+            electrodeLapis = forestryMetaItem.addItem(9, "electrode.lapis");
+            electrodeObsidian = forestryMetaItem.addItem(10, "electrode.obsidian");
+            electrodeTin = forestryMetaItem.addItem(11, "electrode.tin");
+
+            if (Loader.isModLoaded(GTValues.MODID_IC2) || Loader.isModLoaded(GTValues.MODID_BINNIE)) {
+                electrodeIron = forestryMetaItem.addItem(12, "electrode.iron");
+            }
+            if (Loader.isModLoaded(GTValues.MODID_XU2)) {
+                electrodeOrchid = forestryMetaItem.addItem(13, "electrode.orchid");
+            }
+            if (Loader.isModLoaded(GTValues.MODID_IC2) || Loader.isModLoaded(GTValues.MODID_TR) || Loader.isModLoaded(GTValues.MODID_BINNIE)) {
+                electrodeRubber = forestryMetaItem.addItem(14, "electrode.rubber");
             }
         }
     }
@@ -104,6 +166,11 @@ public class ForestryModule extends IntegrationSubmodule {
             if (ForestryConfig.enableGTFrames) {
                 FrameRecipes.init();
             }
+        }
+
+        // GT Electrodes
+        if (ForestryConfig.enableGTElectronTubes) {
+            ElectrodeRecipes.onRecipeEvent();
         }
     }
 
