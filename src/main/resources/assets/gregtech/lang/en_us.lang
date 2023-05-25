@@ -5369,3 +5369,13 @@ gregtech.key.tool_aoe_change=Tool AoE Mode Switch
 
 # Debug messaging
 gregtech.debug.f3_h.enabled=GregTech has modified the debug info! For Developers: enable the misc:debug config option in the GregTech config file to see more
+
+### Forestry Integration
+# Frames
+item.gt.frame_working.name=Working Frame
+item.gt.frame_mutagenic.name=Mutagenic Frame
+item.gt.frame_accelerated.name=Accelerated Frame
+item.gt.frame_stabilizing.name=Stabilizing Frame
+item.gt.frame_arborist.name=Arborist's Frame
+item.gt.frame_decaying.name=Decaying Frame
+item.gt.frame_slowing.name=Slowing Frame

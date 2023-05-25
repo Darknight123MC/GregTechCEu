@@ -129,6 +129,7 @@ dependencies {
     // Left as compileOnlyApi by default for a slimmer default instance.
     compileOnlyApi rfg.deobf("curse.maven:ae2-extended-life-${ae2_pid}:${ae2_fid}")
     compileOnlyApi rfg.deobf("curse.maven:opencomputers-${oc_pid}:${oc_fid}")
+    compileOnlyApi rfg.deobf("curse.maven:forestry-${fr_pid}:${fr_fid}")
 
     // Compile-Time Dependencies
     annotationProcessor "com.github.bsideup.jabel:jabel-javac-plugin:${jabel_version}"
