@@ -14,6 +14,7 @@ import gregtech.api.unification.material.info.MaterialFlags;
 import gregtech.common.items.ToolItems;
 import gregtech.integration.IntegrationSubmodule;
 import gregtech.integration.forestry.bees.GTAlleleBeeSpecies;
+import gregtech.integration.forestry.bees.GTBeeDefinition;
 import gregtech.integration.forestry.bees.GTCombItem;
 import gregtech.integration.forestry.bees.GTDropItem;
 import gregtech.integration.forestry.electrodes.ElectrodeRecipes;
@@ -138,6 +139,7 @@ public class ForestryModule extends IntegrationSubmodule {
         if (ForestryUtil.apicultureEnabled()) {
             if (ForestryConfig.enableGTBees) {
                 GTAlleleBeeSpecies.setupAlleles();
+                GTBeeDefinition.initBees();
             }
         }
 

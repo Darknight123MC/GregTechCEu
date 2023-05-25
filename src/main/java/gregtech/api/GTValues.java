@@ -134,7 +134,9 @@ public class GTValues {
             MODID_XU2 = "extrautils2",
             MODID_TR = "techreborn",
             MODID_MB = "magicbees",
-            MODID_EB = "extrabees";
+            MODID_EB = "extrabees",
+            MODID_BOP = "biomesoplenty",
+            MODID_TCON = "tconstruct";
 
     private static Boolean isClient;
 
