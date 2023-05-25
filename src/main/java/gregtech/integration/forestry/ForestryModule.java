@@ -5,14 +5,19 @@ import gregtech.api.GTValues;
 import gregtech.api.GregTechAPI;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.items.metaitem.StandardMetaItem;
+import gregtech.api.items.toolitem.IGTTool;
+import gregtech.api.items.toolitem.ItemGTTool;
 import gregtech.api.modules.GregTechModule;
 import gregtech.api.unification.material.Materials;
 import gregtech.api.unification.material.info.MaterialFlags;
+import gregtech.common.items.ToolItems;
 import gregtech.integration.IntegrationSubmodule;
 import gregtech.integration.forestry.electrodes.ElectrodeRecipes;
 import gregtech.integration.forestry.frames.FrameRecipes;
 import gregtech.integration.forestry.frames.GTFrameType;
 import gregtech.integration.forestry.frames.GTItemFrame;
+import gregtech.integration.forestry.tools.ScoopBehavior;
+import gregtech.integration.forestry.tools.ToolRecipes;
 import gregtech.modules.GregTechModules;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
@@ -64,6 +69,8 @@ public class ForestryModule extends IntegrationSubmodule {
     public static MetaItem<?>.MetaValueItem electrodeRubber;
     public static MetaItem<?>.MetaValueItem electrodeTin;
 
+    public static IGTTool SCOOP;
+
     @Nonnull
     @Override
     public List<Class<?>> getEventBusSubscribers() {
@@ -88,6 +95,16 @@ public class ForestryModule extends IntegrationSubmodule {
             } else {
                 getLogger().warn("GregTech Frames are enabled, but Forestry Apiculture module is disabled. Skipping...");
             }
+        }
+
+        // GT Scoop
+        if (ForestryConfig.enableGTScoop) {
+            SCOOP = ToolItems.register(ItemGTTool.Builder.of(GTValues.MODID, "scoop")
+                    .toolStats(b -> b
+                            .cannotAttack().attackSpeed(-2.4F)
+                            .behaviors(ScoopBehavior.INSTANCE))
+                    .toolClasses("scoop")
+                    .oreDict("toolScoop"));
         }
     }
 
@@ -171,6 +188,11 @@ public class ForestryModule extends IntegrationSubmodule {
         // GT Electrodes
         if (ForestryConfig.enableGTElectronTubes) {
             ElectrodeRecipes.onRecipeEvent();
+        }
+
+        // GT Scoop
+        if (ForestryConfig.enableGTScoop) {
+            ToolRecipes.registerHandlers();
         }
     }
 
