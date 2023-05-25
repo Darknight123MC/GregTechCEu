@@ -1,6 +1,7 @@
 package gregtech.integration.forestry;
 
 import forestry.api.core.ForestryAPI;
+import forestry.core.items.IColoredItem;
 import gregtech.api.GTValues;
 import gregtech.api.GregTechAPI;
 import gregtech.api.items.metaitem.MetaItem;
@@ -12,6 +13,8 @@ import gregtech.api.unification.material.Materials;
 import gregtech.api.unification.material.info.MaterialFlags;
 import gregtech.common.items.ToolItems;
 import gregtech.integration.IntegrationSubmodule;
+import gregtech.integration.forestry.bees.GTCombItem;
+import gregtech.integration.forestry.bees.GTDropItem;
 import gregtech.integration.forestry.electrodes.ElectrodeRecipes;
 import gregtech.integration.forestry.frames.FrameRecipes;
 import gregtech.integration.forestry.frames.GTFrameType;
@@ -19,6 +22,7 @@ import gregtech.integration.forestry.frames.GTItemFrame;
 import gregtech.integration.forestry.tools.ScoopBehavior;
 import gregtech.integration.forestry.tools.ToolRecipes;
 import gregtech.modules.GregTechModules;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -71,6 +75,9 @@ public class ForestryModule extends IntegrationSubmodule {
 
     public static IGTTool SCOOP;
 
+    public static GTDropItem drops;
+    public static GTCombItem combs;
+
     @Nonnull
     @Override
     public List<Class<?>> getEventBusSubscribers() {
@@ -106,6 +113,16 @@ public class ForestryModule extends IntegrationSubmodule {
                     .toolClasses("scoop")
                     .oreDict("toolScoop"));
         }
+
+        // GT Bees
+        if (ForestryConfig.enableGTBees) {
+            if (ForestryUtil.apicultureEnabled()) {
+                drops = new GTDropItem();
+                combs = new GTCombItem();
+            } else {
+                getLogger().warn("GregTech Bees are enabled, but Forestry Apiculture module is disabled. Skipping...");
+            }
+        }
     }
 
     @Override
@@ -115,6 +132,19 @@ public class ForestryModule extends IntegrationSubmodule {
         // See https://github.com/ForestryMC/ForestryMC/issues/2599
         if (ForestryConfig.enableGTElectronTubes) {
             ElectrodeRecipes.onInit();
+        }
+
+        if (event.getSide() == Side.CLIENT) {
+            if (ForestryUtil.apicultureEnabled()) {
+                if (ForestryConfig.enableGTBees) {
+                    Minecraft.getMinecraft().getItemColors().registerItemColorHandler((stack, tintIndex) -> {
+                        if (stack.getItem() instanceof IColoredItem coloredItem) {
+                            return coloredItem.getColorFromItemstack(stack, tintIndex);
+                        }
+                        return 0xFFFFFF;
+                    }, drops, combs);
+                }
+            }
         }
     }
 
@@ -159,6 +189,14 @@ public class ForestryModule extends IntegrationSubmodule {
                 electrodeRubber = forestryMetaItem.addItem(14, "electrode.rubber");
             }
         }
+
+        // GT Drops
+        if (ForestryUtil.apicultureEnabled()) {
+            if (ForestryConfig.enableGTBees) {
+                registry.register(drops);
+                registry.register(combs);
+            }
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -173,6 +211,10 @@ public class ForestryModule extends IntegrationSubmodule {
                 frameSlowing.registerModel(frameSlowing, ForestryAPI.modelManager);
                 frameStabilizing.registerModel(frameStabilizing, ForestryAPI.modelManager);
                 frameArborist.registerModel(frameArborist, ForestryAPI.modelManager);
+            }
+            if (ForestryConfig.enableGTBees) {
+                drops.registerModel(drops, ForestryAPI.modelManager);
+                combs.registerModel(combs, ForestryAPI.modelManager);
             }
         }
     }

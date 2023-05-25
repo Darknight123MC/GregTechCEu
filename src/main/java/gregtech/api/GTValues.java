@@ -132,7 +132,8 @@ public class GTValues {
             MODID_IC2 = "ic2",
             MODID_BINNIE = "binniecore",
             MODID_XU2 = "extrautils2",
-            MODID_TR = "techreborn";
+            MODID_TR = "techreborn",
+            MODID_MB = "magicbees";
 
     private static Boolean isClient;
 
