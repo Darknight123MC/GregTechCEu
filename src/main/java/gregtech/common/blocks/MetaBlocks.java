@@ -13,6 +13,7 @@ import gregtech.api.unification.material.registry.MaterialRegistry;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.ore.StoneType;
 import gregtech.api.util.GTUtility;
+import gregtech.api.util.function.TriConsumer;
 import gregtech.client.model.SimpleStateMapper;
 import gregtech.client.model.modelfactories.BakedModelHandler;
 import gregtech.client.renderer.handler.MetaTileEntityRenderer;
@@ -66,7 +67,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -143,26 +143,27 @@ public class MetaBlocks {
         MACHINE.setRegistryName("machine");
 
         for (MaterialRegistry registry : MaterialRegistrationManager.getRegistries()) {
+            String modid = registry.getModid();
             BlockCable[] cables = new BlockCable[Insulation.VALUES.length];
             for (Insulation ins : Insulation.VALUES) {
                 cables[ins.ordinal()] = new BlockCable(ins, registry);
-                cables[ins.ordinal()].setRegistryName(ins.getName());
+                cables[ins.ordinal()].setRegistryName(modid, ins.getName());
             }
-            CABLES.put(registry.getModid(), cables);
+            CABLES.put(modid, cables);
 
             BlockFluidPipe[] fluidPipes = new BlockFluidPipe[FluidPipeType.VALUES.length];
             for (FluidPipeType type : FluidPipeType.VALUES) {
                 fluidPipes[type.ordinal()] = new BlockFluidPipe(type, registry);
-                fluidPipes[type.ordinal()].setRegistryName(String.format("fluid_pipe_%s", type.name));
+                fluidPipes[type.ordinal()].setRegistryName(modid, String.format("fluid_pipe_%s", type.name));
             }
-            FLUID_PIPES.put(registry.getModid(), fluidPipes);
+            FLUID_PIPES.put(modid, fluidPipes);
 
             BlockItemPipe[] itemPipes = new BlockItemPipe[ItemPipeType.VALUES.length];
             for (ItemPipeType type : ItemPipeType.VALUES) {
                 itemPipes[type.ordinal()] = new BlockItemPipe(type, registry);
-                itemPipes[type.ordinal()].setRegistryName(String.format("item_pipe_%s", type.name));
+                itemPipes[type.ordinal()].setRegistryName(modid, String.format("item_pipe_%s", type.name));
             }
-            ITEM_PIPES.put(registry.getModid(), itemPipes);
+            ITEM_PIPES.put(modid, itemPipes);
         }
 
         BOILER_CASING = new BlockBoilerCasing();
@@ -290,7 +291,7 @@ public class MetaBlocks {
      *                          MetaBlock should have within its category.
      */
     protected static void createGeneratedBlock(Predicate<Material> materialPredicate,
-                                               BiConsumer<Material[], Integer> blockGenerator) {
+                                               TriConsumer<String, Material[], Integer> blockGenerator) {
         for (MaterialRegistry registry : MaterialRegistrationManager.getRegistries()) {
             Int2ObjectMap<Material[]> blocksToGenerate = new Int2ObjectAVLTreeMap<>();
             for (Material material : registry) {
@@ -308,31 +309,31 @@ public class MetaBlocks {
                     blocksToGenerate.get(metaBlockID)[subBlockID] = material;
                 }
             }
-            blocksToGenerate.forEach((key, value) -> blockGenerator.accept(value, key));
+            blocksToGenerate.forEach((key, value) -> blockGenerator.accept(registry.getModid(), value, key));
         }
     }
 
-    private static void createCompressedBlock(Material[] materials, int index) {
+    private static void createCompressedBlock(String modid, Material[] materials, int index) {
         BlockCompressed block = BlockCompressed.create(materials);
-        block.setRegistryName("meta_block_compressed_" + index);
+        block.setRegistryName(modid, "meta_block_compressed_" + index);
         for (Material m : materials) {
             COMPRESSED.put(m, block);
         }
         COMPRESSED_BLOCKS.add(block);
     }
 
-    private static void createFrameBlock(Material[] materials, int index) {
+    private static void createFrameBlock(String modid, Material[] materials, int index) {
         BlockFrame block = BlockFrame.create(materials);
-        block.setRegistryName("meta_block_frame_" + index);
+        block.setRegistryName(modid, "meta_block_frame_" + index);
         for (Material m : materials) {
             FRAMES.put(m, block);
         }
         FRAME_BLOCKS.add(block);
     }
 
-    private static void createSurfaceRockBlock(Material[] materials, int index) {
+    private static void createSurfaceRockBlock(String modid, Material[] materials, int index) {
         BlockSurfaceRock block = BlockSurfaceRock.create(materials);
-        block.setRegistryName("meta_block_surface_rock_" + index);
+        block.setRegistryName(modid, "meta_block_surface_rock_" + index);
         for (Material m : materials) {
             SURFACE_ROCK.put(m, block);
         }
@@ -353,12 +354,9 @@ public class MetaBlocks {
     public static void registerItemModels() {
         ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(MACHINE), stack -> MetaTileEntityRenderer.MODEL_LOCATION);
         for (MaterialRegistry registry : MaterialRegistrationManager.getRegistries()) {
-            for (BlockCable cable : CABLES.get(registry.getModid()))
-                ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(cable), stack -> CableRenderer.INSTANCE.getModelLocation());
-            for (BlockFluidPipe pipe : FLUID_PIPES.get(registry.getModid()))
-                ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(pipe), stack -> FluidPipeRenderer.INSTANCE.getModelLocation());
-            for (BlockItemPipe pipe : ITEM_PIPES.get(registry.getModid()))
-                ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(pipe), stack -> ItemPipeRenderer.INSTANCE.getModelLocation());
+            for (BlockCable cable : CABLES.get(registry.getModid())) cable.onModelRegister();
+            for (BlockFluidPipe pipe : FLUID_PIPES.get(registry.getModid())) pipe.onModelRegister();
+            for (BlockItemPipe pipe : ITEM_PIPES.get(registry.getModid())) pipe.onModelRegister();
         }
 
         registerItemModel(BOILER_CASING);
