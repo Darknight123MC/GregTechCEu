@@ -9,7 +9,6 @@ import gregtech.api.unification.material.Material;
 import gregtech.api.unification.material.Materials;
 import gregtech.api.unification.material.properties.PropertyKey;
 import gregtech.api.unification.material.registry.MaterialRegistry;
-import gregtech.api.unification.material.registry.MaterialRegistryManager;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.ore.StoneType;
 import gregtech.api.util.GTUtility;
@@ -142,7 +141,7 @@ public class MetaBlocks {
         GregTechAPI.MACHINE = MACHINE = new BlockMachine();
         MACHINE.setRegistryName("machine");
 
-        for (MaterialRegistry registry : MaterialRegistryManager.getRegistries()) {
+        for (MaterialRegistry registry : GregTechAPI.materialManager.getRegistries()) {
             String modid = registry.getModid();
             BlockCable[] cables = new BlockCable[Insulation.VALUES.length];
             for (Insulation ins : Insulation.VALUES) {
@@ -292,7 +291,7 @@ public class MetaBlocks {
      */
     protected static void createGeneratedBlock(Predicate<Material> materialPredicate,
                                                TriConsumer<String, Material[], Integer> blockGenerator) {
-        for (MaterialRegistry registry : MaterialRegistryManager.getRegistries()) {
+        for (MaterialRegistry registry : GregTechAPI.materialManager.getRegistries()) {
             Int2ObjectMap<Material[]> blocksToGenerate = new Int2ObjectAVLTreeMap<>();
             for (Material material : registry) {
                 if (materialPredicate.test(material)) {
@@ -353,7 +352,7 @@ public class MetaBlocks {
     @SideOnly(Side.CLIENT)
     public static void registerItemModels() {
         ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(MACHINE), stack -> MetaTileEntityRenderer.MODEL_LOCATION);
-        for (MaterialRegistry registry : MaterialRegistryManager.getRegistries()) {
+        for (MaterialRegistry registry : GregTechAPI.materialManager.getRegistries()) {
             for (BlockCable cable : CABLES.get(registry.getModid())) cable.onModelRegister();
             for (BlockFluidPipe pipe : FLUID_PIPES.get(registry.getModid())) pipe.onModelRegister();
             for (BlockItemPipe pipe : ITEM_PIPES.get(registry.getModid())) pipe.onModelRegister();
@@ -435,7 +434,7 @@ public class MetaBlocks {
         ModelLoader.setCustomStateMapper(MACHINE, new SimpleStateMapper(MetaTileEntityRenderer.MODEL_LOCATION));
 
         IStateMapper normalStateMapper;
-        for (MaterialRegistry registry : MaterialRegistryManager.getRegistries()) {
+        for (MaterialRegistry registry : GregTechAPI.materialManager.getRegistries()) {
             normalStateMapper = new SimpleStateMapper(CableRenderer.INSTANCE.getModelLocation());
             for (BlockCable cable : CABLES.get(registry.getModid())) {
                 ModelLoader.setCustomStateMapper(cable, normalStateMapper);
@@ -564,7 +563,7 @@ public class MetaBlocks {
                 OreDictUnifier.registerOre(normalStack, stoneType.processingPrefix, material);
             }
         }
-        for (MaterialRegistry registry : MaterialRegistryManager.getRegistries()) {
+        for (MaterialRegistry registry : GregTechAPI.materialManager.getRegistries()) {
             for (BlockCable cable : CABLES.get(registry.getModid())) {
                 for (Material pipeMaterial : cable.getEnabledMaterials()) {
                     ItemStack itemStack = cable.getItem(pipeMaterial);
