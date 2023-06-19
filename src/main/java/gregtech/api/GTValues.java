@@ -6,7 +6,8 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -156,12 +157,12 @@ public class GTValues {
     public static final int FALLBACK = -1;
 
     public static Supplier<Boolean> FOOLS = () -> {
-        String[] yearMonthDay = LocalDate.now().toString().split("-");
-        return yearMonthDay[1].equals("04") && yearMonthDay[2].equals("01");
+        Calendar fools = Calendar.getInstance(Locale.getDefault());
+        return fools.get(Calendar.MONTH) == Calendar.APRIL && fools.get(Calendar.DATE) == 1;
     };
 
     public static Supplier<Boolean> XMAS = () -> {
-        String[] yearMonthDay = LocalDate.now().toString().split("-");
-        return yearMonthDay[1].equals("12") && (yearMonthDay[2].equals("24") || yearMonthDay[2].equals("25"));
+        Calendar xmas = Calendar.getInstance(Locale.getDefault());
+        return xmas.get(Calendar.MONTH) == Calendar.DECEMBER && (xmas.get(Calendar.DATE) == 24 || xmas.get(Calendar.DATE) == 25);
     };
 }
