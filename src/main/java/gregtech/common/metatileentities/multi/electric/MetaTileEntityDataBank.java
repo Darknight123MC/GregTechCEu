@@ -233,7 +233,9 @@ public class MetaTileEntityDataBank extends MultiblockWithDisplayBase implements
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        textList.add(new TextComponentTranslation("gregtech.multiblock.energy_consumption", this.energyUsage));
+        if (isStructureFormed()) {
+            textList.add(new TextComponentTranslation("gregtech.multiblock.energy_consumption", this.energyUsage));
+        }
     }
 
     @Override

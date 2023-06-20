@@ -3,7 +3,11 @@ package gregtech.common.metatileentities.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.GregtechDataCodes;
+import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IControllable;
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.metatileentity.multiblock.IHPCAComponent;
@@ -19,12 +23,21 @@ import gregtech.client.renderer.texture.Textures;
 import gregtech.common.blocks.BlockComputerCasing;
 import gregtech.common.blocks.BlockHPCAComponent;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.core.sound.GTSoundEvents;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -34,10 +47,15 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
     // Match Context Headers
     private static final String HPCA_COMPONENT_HEADER = "HPCAComponents";
 
+    private IEnergyContainer energyContainer;
     private final HPCAGridHandler hpcaHandler = new HPCAGridHandler();
+
+    private boolean isActive;
+    private boolean isWorkingEnabled = true;
 
     public MetaTileEntityHPCA(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
+        this.energyContainer = new EnergyContainerList(new ArrayList<>());
     }
 
     @Override
@@ -48,10 +66,16 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
         Object2ObjectMap<BlockPos, IHPCAComponent> components = context.get(HPCA_COMPONENT_HEADER);
-        hpcaHandler.onStructureForm(components.values());
-        System.out.println("Hints:");
-        System.out.println(hpcaHandler.getPossibleHints());
+        this.hpcaHandler.onStructureForm(components.values());
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.energyContainer = new EnergyContainerList(new ArrayList<>());
+        this.hpcaHandler.onStructureInvalidate();
     }
 
     @Override
@@ -109,8 +133,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
                 components = new Object2ObjectOpenHashMap<>();
                 state.getMatchContext().set(HPCA_COMPONENT_HEADER, components);
             }
-            Object didHaveOld = components.put(state.getPos(), component);
-            if (didHaveOld != null) System.out.println("yeah, something old was there for some reason");
+            components.put(state.getPos(), component);
             return true;
         });
     }
@@ -137,16 +160,98 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
         getFrontOverlay().renderOrientedState(renderState, translation, pipeline, getFrontFacing(), this.isActive(), this.isWorkingEnabled());
     }
 
-    // todo
     @Override
-    public boolean isWorkingEnabled() {
-        return false;
+    public boolean isActive() {
+        return super.isActive() && this.isActive;
     }
 
-    // todo
+    public void setActive(boolean active) {
+        if (this.isActive != active) {
+            this.isActive = active;
+            markDirty();
+            if (getWorld() != null && !getWorld().isRemote) {
+                writeCustomData(GregtechDataCodes.WORKABLE_ACTIVE, buf -> buf.writeBoolean(active));
+            }
+        }
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.isWorkingEnabled;
+    }
+
     @Override
     public void setWorkingEnabled(boolean isWorkingAllowed) {
+        if (this.isWorkingEnabled != isWorkingAllowed) {
+            this.isWorkingEnabled = isWorkingAllowed;
+            markDirty();
+            if (getWorld() != null && !getWorld().isRemote) {
+                writeCustomData(GregtechDataCodes.WORKING_ENABLED, buf -> buf.writeBoolean(isWorkingEnabled));
+            }
+        }
+    }
 
+    @Override
+    protected void addDisplayText(List<ITextComponent> textList) {
+        super.addDisplayText(textList);
+        if (isStructureFormed()) {
+            //textList.add(new TextComponentTranslation("gregtech.multiblock.energy_consumption", this.hpcaHandler.));
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public SoundEvent getSound() {
+        return GTSoundEvents.COMPUTATION;
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setBoolean("isActive", this.isActive);
+        data.setBoolean("isWorkingEnabled", this.isWorkingEnabled);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.isActive = data.getBoolean("isActive");
+        this.isWorkingEnabled = data.getBoolean("isWorkingEnabled");
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeBoolean(this.isActive);
+        buf.writeBoolean(this.isWorkingEnabled);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.isActive = buf.readBoolean();
+        this.isWorkingEnabled = buf.readBoolean();
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, @NotNull PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == GregtechDataCodes.WORKABLE_ACTIVE) {
+            this.isActive = buf.readBoolean();
+            scheduleRenderUpdate();
+        } else if (dataId == GregtechDataCodes.WORKING_ENABLED) {
+            this.isWorkingEnabled = buf.readBoolean();
+            scheduleRenderUpdate();
+        }
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_CONTROLLABLE) {
+            return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
+        }
+        return super.getCapability(capability, side);
     }
 
     // Handles the logic of this structure's specific HPCA component grid
@@ -154,28 +259,65 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
 
         private List<IHPCAComponent> currentComponents; // todo test if Set will work here
 
-        private int coolantPerTick = -1; // todo
+        private int maximumCoolantPerTick = -1;
+        private int totalMaximumCooling = -1;
+        private int maximumActiveCooling = -1;
         private int maximumCWUt = -1;
         private long passiveEUt = -1;
         private long maximumEUt = -1;
         private List<String> hints = null;
 
         private void onStructureForm(Collection<IHPCAComponent> components) {
-            // reset state, lazily evaluated
+            reset();
             currentComponents = new ArrayList<>(components);
-            coolantPerTick = -1;
+        }
+
+        private void onStructureInvalidate() {
+            reset();
+        }
+
+        private void reset() {
+            // reset state, lazily evaluated
+            currentComponents = null;
+            maximumCoolantPerTick = -1;
+            totalMaximumCooling = -1;
+            maximumActiveCooling = -1;
             maximumCWUt = -1;
             passiveEUt = -1;
             maximumEUt = -1;
             hints = null;
         }
 
-        /** The amount of coolant needed to run every tick */
-        private int getCoolantPerTick() {
-            if (coolantPerTick == -1) {
-                // todo recalculate
+        /** The maximum amount of "coolant" this could need if running at 100% */
+        private int getMaxCoolantDemand() {
+            if (maximumCoolantPerTick == -1) {
+                maximumCoolantPerTick = currentComponents.stream()
+                        .mapToInt(IHPCAComponent::getMaxCoolantDemandPerTick)
+                        .sum();
             }
-            return coolantPerTick;
+            return maximumCoolantPerTick;
+        }
+
+        /** How much "coolant" this can currently make. */
+        private int getMaxCoolantProduction() {
+            if (totalMaximumCooling == -1) {
+                totalMaximumCooling = currentComponents.stream()
+                        .filter(IHPCAComponent::isCoolantProvider)
+                        .mapToInt(IHPCAComponent::getMaxCoolantPerTick)
+                        .sum();
+            }
+            return totalMaximumCooling;
+        }
+
+        /** Maximum amount of coolant to consume if running at 100% computation. */
+        private int getMaximumActiveCooling() {
+            if (maximumActiveCooling == -1) {
+                maximumActiveCooling = currentComponents.stream()
+                        .filter(IHPCAComponent::isCoolantProvider)
+                        .mapToInt(IHPCAComponent::getMaxActiveCoolantPerTick)
+                        .sum();
+            }
+            return maximumActiveCooling;
         }
 
         /** The maximum amount of CWUs (Compute Work Units) created per tick. */
@@ -238,7 +380,9 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
                     hints.add("No HPCA Computation providers found! No computation can be done");
                 }
 
-                // todo cooling warning
+                if (getMaxCoolantDemand() > getMaxCoolantProduction()) {
+                    hints.add("HPCA will overheat if run at maximum computation, not enough coolant potential!");
+                }
             }
             return hints;
         }

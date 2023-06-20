@@ -54,13 +54,16 @@ public class BlockHPCAComponent extends VariantActiveBlock<BlockHPCAComponent.Co
         // Computation has low upkeep, but much higher max.
         // Other parts have no increase in EU/t when active, so their
         // upkeep cost is higher.
+        // Damaged parts have the same EU/t cost as their undamaged forms, but
+        // do not increase their cost when running.
         @Override
         public int getUpkeepEUt() {
             return switch (this) {
                 case HPCA_ACTIVE_COOLER,
                         HPCA_BRIDGE,
-                        HPCA_COMPUTATION_HIGH -> GTValues.VA[GTValues.IV];
-                case HPCA_COMPUTATION         -> GTValues.VA[GTValues.EV];
+                        HPCA_COMPUTATION_HIGH,
+                        HPCA_DAMAGED_ADVANCED       -> GTValues.VA[GTValues.IV];
+                case HPCA_COMPUTATION, HPCA_DAMAGED -> GTValues.VA[GTValues.EV];
 
                 default -> 0;
             };
@@ -70,9 +73,13 @@ public class BlockHPCAComponent extends VariantActiveBlock<BlockHPCAComponent.Co
         public int getMaxEUt() {
             return switch (this) {
                 // same as upkeep cost, this amount doesn't change
-                case HPCA_ACTIVE_COOLER, HPCA_BRIDGE -> GTValues.VA[GTValues.IV];
+                case HPCA_DAMAGED -> GTValues.VA[GTValues.EV];
+                case HPCA_ACTIVE_COOLER,
+                        HPCA_BRIDGE,
+                        HPCA_DAMAGED_ADVANCED -> GTValues.VA[GTValues.IV];
 
                 // maximum possible EU/t if full computation is being used
+                // todo tweak value
                 case HPCA_COMPUTATION      -> GTValues.VA[GTValues.LuV];
                 case HPCA_COMPUTATION_HIGH -> GTValues.VA[GTValues.ZPM];
 
