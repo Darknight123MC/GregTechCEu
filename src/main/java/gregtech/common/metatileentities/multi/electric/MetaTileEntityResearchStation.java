@@ -1,5 +1,6 @@
 package gregtech.common.metatileentities.multi.electric;
 
+import gregtech.api.capability.IObjectHolder;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -46,10 +47,9 @@ public class MetaTileEntityResearchStation extends RecipeMapMultiblockController
                 .where('A', states(getAdvancedState()))
                 .where('P', states(getCasingState()).or(
                         abilities(MultiblockAbility.INPUT_ENERGY).setMinGlobalLimited(1).or(
-                        abilities(MultiblockAbility.MAINTENANCE_HATCH).setExactLimit(1)//.or(
-                        //abilities(MultiblockAbility.COMPUTATION_DATA_RECEPTION).setExactLimit(1))
-                        )))
-                .where('H', states(getAdvancedState())) // todo object holder
+                        abilities(MultiblockAbility.MAINTENANCE_HATCH).setExactLimit(1).or(
+                        abilities(MultiblockAbility.COMPUTATION_DATA_RECEPTION).setExactLimit(1)))))
+                .where('H', abilities(MultiblockAbility.OBJECT_HOLDER)) // todo fix facing
                 .build();
     }
 
@@ -70,7 +70,7 @@ public class MetaTileEntityResearchStation extends RecipeMapMultiblockController
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        if (sourcePart == null /* || sourcePart instanceof IObjectHolderHatch */) {
+        if (sourcePart == null || sourcePart instanceof IObjectHolder) {
             return Textures.ADVANCED_COMPUTER_CASING;
         }
         return Textures.COMPUTER_CASING;
@@ -80,5 +80,10 @@ public class MetaTileEntityResearchStation extends RecipeMapMultiblockController
     @Override
     protected ICubeRenderer getFrontOverlay() {
         return Textures.RESEARCH_STATION_OVERLAY;
+    }
+
+    @Override
+    protected boolean shouldShowVoidingModeButton() {
+        return false;
     }
 }

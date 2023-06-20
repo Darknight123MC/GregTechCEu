@@ -34,7 +34,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -99,9 +100,8 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
                 .where('C', states(getCasingState()).or(
                         abilities(MultiblockAbility.MAINTENANCE_HATCH).setExactLimit(1).or(
                         abilities(MultiblockAbility.INPUT_ENERGY).setMinGlobalLimited(1).or(
-                        abilities(MultiblockAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1)//.or(
-                        //abilities(MultiblockAbility.COMPUTATION_DATA_TRANSMISSION).setExactLimit(1))
-                        ))))
+                        abilities(MultiblockAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1).or(
+                        abilities(MultiblockAbility.COMPUTATION_DATA_TRANSMISSION).setExactLimit(1))))))
                 .build();
     }
 
@@ -195,8 +195,46 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (isStructureFormed()) {
+            textList.add(new TextComponentString(String.format("Maximum Computation: %d CWU/t", hpcaHandler.getMaxCWUt())));
+            textList.add(new TextComponentString(String.format("Maximum Power: %d EU/t", hpcaHandler.getMaxEUt())));
+            textList.add(new TextComponentString(String.format("Current Power Usage: %d EU/t", getCurrentEUt())));
+            textList.add(new TextComponentString(String.format("Maximum Coolant Demand: %d CU/t", hpcaHandler.getMaxCoolantDemand())));
+            textList.add(new TextComponentString(String.format("Maximum Coolant Supply: %d CU/t", hpcaHandler.getMaxCoolantProduction())));
+
+            List<String> hints = hpcaHandler.getPossibleHints();
+            if (!hints.isEmpty()) {
+                ITextComponent hint0 = new TextComponentString(hints.get(0));
+                if (hints.size() > 1) {
+                    for (int i = 1; i < hints.size(); i++) {
+                        hint0.appendSibling(new TextComponentString(hints.get(i)));
+                    }
+                }
+
+                ITextComponent hintComponent = new TextComponentString("Potential structure improvements: (hover)").setStyle(new Style().setColor(TextFormatting.RED)
+                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hint0)));
+                textList.add(hintComponent);
+            }
+
+            //textList.add(new TextComponentString(String.format("Maximum Coolant: %s L/t", hpcaHandler.getMaximumActiveCooling())));
             //textList.add(new TextComponentTranslation("gregtech.multiblock.energy_consumption", this.hpcaHandler.));
         }
+    }
+
+    @Override
+    protected boolean shouldShowVoidingModeButton() {
+        return false;
+    }
+
+    private int getCurrentEUt() {
+        if (isStructureFormed()) {
+            if (isActive()) {
+                // todo
+                return 0;
+            } else {
+                return hpcaHandler.getPassiveEUt();
+            }
+        }
+        return 0;
     }
 
     @SideOnly(Side.CLIENT)
@@ -263,8 +301,8 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
         private int totalMaximumCooling = -1;
         private int maximumActiveCooling = -1;
         private int maximumCWUt = -1;
-        private long passiveEUt = -1;
-        private long maximumEUt = -1;
+        private int passiveEUt = -1;
+        private int maximumEUt = -1;
         private List<String> hints = null;
 
         private void onStructureForm(Collection<IHPCAComponent> components) {
@@ -332,7 +370,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
         }
 
         /** The passive EU/t drain for this multi. EU/t will never be lower than this. */
-        private long getPassiveEUt() {
+        private int getPassiveEUt() {
             if (passiveEUt == -1) {
                 passiveEUt = 0;
                 for (var component : currentComponents) {
@@ -343,7 +381,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
         }
 
         /** The maximum EU/t drain for this multi. EU/t will be proportional to the amount of computation used. */
-        private long getMaxEUt() {
+        private int getMaxEUt() {
             if (maximumEUt == -1) {
                 maximumEUt = 0;
                 for (var component : currentComponents) {

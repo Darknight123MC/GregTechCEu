@@ -215,6 +215,11 @@ public class MetaTileEntityDataBank extends MultiblockWithDisplayBase implements
         return Textures.DATA_BANK_OVERLAY;
     }
 
+    @Override
+    protected boolean shouldShowVoidingModeButton() {
+        return false;
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public SoundEvent getSound() {
