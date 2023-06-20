@@ -64,17 +64,17 @@ public class MetaTileEntityDataBank extends MultiblockWithDisplayBase implements
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
-        calculateEnergyUsage();
+        this.energyUsage = calculateEnergyUsage();
     }
 
-    private void calculateEnergyUsage() {
+    protected int calculateEnergyUsage() {
         int receivers = getAbilities(MultiblockAbility.OPTICAL_DATA_RECEPTION).size();
         int transmitters = getAbilities(MultiblockAbility.OPTICAL_DATA_TRANSMISSION).size();
         int regulars = getAbilities(MultiblockAbility.DATA_ACCESS_HATCH).size();
 
         int dataHatches = receivers + transmitters + regulars;
         int tier = receivers > 0 ? GTValues.LuV : GTValues.EV;
-        this.energyUsage = GTValues.VA[tier] * dataHatches;
+        return GTValues.VA[tier] * dataHatches;
     }
 
     @Override
@@ -195,6 +195,10 @@ public class MetaTileEntityDataBank extends MultiblockWithDisplayBase implements
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
+        renderTextures(renderState, translation, pipeline);
+    }
+
+    protected void renderTextures(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         if (isStructureFormed()) {
             Textures.HIGH_POWER_CASING.render(renderState, translation, pipeline);
         } else {

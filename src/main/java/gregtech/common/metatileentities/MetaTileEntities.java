@@ -205,6 +205,9 @@ public class MetaTileEntities {
     public static MetaTileEntityCleanroom CLEANROOM;
     public static MetaTileEntityCharcoalPileIgniter CHARCOAL_PILE_IGNITER;
     public static MetaTileEntityDataBank DATA_BANK;
+    public static MetaTileEntityResearchStation RESEARCH_STATION;
+    public static MetaTileEntityHPCA HIGH_PERFORMANCE_COMPUTING_ARRAY;
+    public static MetaTileEntityNetworkSwitch NETWORK_SWITCH;
     //STORAGE SECTION
     public static MetaTileEntityLockedSafe LOCKED_SAFE;
     public static MetaTileEntityTankValve WOODEN_TANK_VALVE;
@@ -525,6 +528,9 @@ public class MetaTileEntities {
         CHARCOAL_PILE_IGNITER = registerMetaTileEntity(1036, new MetaTileEntityCharcoalPileIgniter(gregtechId("charcoal_pile")));
 
         DATA_BANK = registerMetaTileEntity(1037, new MetaTileEntityDataBank(gregtechId("data_bank")));
+        RESEARCH_STATION = registerMetaTileEntity(1038, new MetaTileEntityResearchStation(gregtechId("research_station")));
+        HIGH_PERFORMANCE_COMPUTING_ARRAY = registerMetaTileEntity(1039, new MetaTileEntityHPCA(gregtechId("high_performance_computing_array")));
+        NETWORK_SWITCH = registerMetaTileEntity(1040, new MetaTileEntityNetworkSwitch(gregtechId("network_switch")));
 
         // MISC MTE's START: IDs 1150-2000
 

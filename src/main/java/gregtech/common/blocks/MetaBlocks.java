@@ -102,6 +102,7 @@ public class MetaBlocks {
     public static BlockHermeticCasing HERMETIC_CASING;
     public static BlockCleanroomCasing CLEANROOM_CASING;
     public static BlockComputerCasing COMPUTER_CASING;
+    public static BlockHPCAComponent HPCA_COMPONENT;
 
     public static final EnumMap<EnumDyeColor, BlockLamp> LAMPS = new EnumMap<>(EnumDyeColor.class);
     public static final EnumMap<EnumDyeColor, BlockLamp> BORDERLESS_LAMPS = new EnumMap<>(EnumDyeColor.class);
@@ -195,6 +196,8 @@ public class MetaBlocks {
         CLEANROOM_CASING.setRegistryName("cleanroom_casing");
         COMPUTER_CASING = new BlockComputerCasing();
         COMPUTER_CASING.setRegistryName("computer_casing");
+        HPCA_COMPONENT = new BlockHPCAComponent();
+        HPCA_COMPONENT.setRegistryName("hpca_component");
 
         for (EnumDyeColor color : EnumDyeColor.values()) {
             BlockLamp block = new BlockLamp(color);
@@ -404,6 +407,7 @@ public class MetaBlocks {
         FUSION_CASING.onModelRegister();
         MULTIBLOCK_CASING.onModelRegister();
         TRANSPARENT_CASING.onModelRegister();
+        HPCA_COMPONENT.onModelRegister();
 
         for (BlockLamp lamp : LAMPS.values()) lamp.onModelRegister();
         for (BlockLamp lamp : BORDERLESS_LAMPS.values()) lamp.onModelRegister();

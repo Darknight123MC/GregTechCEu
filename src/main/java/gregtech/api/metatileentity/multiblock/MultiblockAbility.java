@@ -47,6 +47,9 @@ public class MultiblockAbility<T> {
     public static final MultiblockAbility<IOpticalDataAccessHatch> OPTICAL_DATA_RECEPTION = new MultiblockAbility<>("optical_data_reception");
     public static final MultiblockAbility<IOpticalDataAccessHatch> OPTICAL_DATA_TRANSMISSION = new MultiblockAbility<>("optical_data_transmission");
 
+    public static final MultiblockAbility<IOpticalDataAccessHatch> COMPUTATION_DATA_RECEPTION = new MultiblockAbility<>("computation_data_reception");
+    public static final MultiblockAbility<IOpticalDataAccessHatch> COMPUTATION_DATA_TRANSMISSION = new MultiblockAbility<>("computation_data_transmission");
+
     public static void registerMultiblockAbility(MultiblockAbility<?> ability, MetaTileEntity part) {
         if (!REGISTRY.containsKey(ability)) {
             REGISTRY.put(ability, new ArrayList<>());

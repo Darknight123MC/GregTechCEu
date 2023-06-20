@@ -1030,6 +1030,10 @@ public class RecipeMaps {
             .setSound(GTSoundEvents.REPLICATOR);
 
     @ZenProperty
+    public static final RecipeMap<SimpleRecipeBuilder> RESEARCH_STATION_RECIPES = new RecipeMap<>("research_station", 2, 1, 0, 0, new SimpleRecipeBuilder(), false);
+    // todo add the stuff, custom map?
+
+    @ZenProperty
     public static final RecipeMap<SimpleRecipeBuilder> ROCK_BREAKER_RECIPES = new RecipeMap<>("rock_breaker", 1, 4, 0, 0, new SimpleRecipeBuilder(), false)
             .setSlotOverlay(false, false, GuiTextures.DUST_OVERLAY)
             .setSlotOverlay(true, false, GuiTextures.CRUSHED_ORE_OVERLAY)

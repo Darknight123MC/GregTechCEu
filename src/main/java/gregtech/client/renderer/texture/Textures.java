@@ -120,6 +120,9 @@ public class Textures {
     public static final OrientedOverlayRenderer MULTIBLOCK_TANK_OVERLAY = new OrientedOverlayRenderer("multiblock/multiblock_tank");
     public static final OrientedOverlayRenderer CHARCOAL_PILE_OVERLAY = new OrientedOverlayRenderer("multiblock/charcoal_pile_igniter");
     public static final OrientedOverlayRenderer DATA_BANK_OVERLAY = new OrientedOverlayRenderer("multiblock/data_bank");
+    public static final OrientedOverlayRenderer RESEARCH_STATION_OVERLAY = new OrientedOverlayRenderer("multiblock/research_station");
+    public static final OrientedOverlayRenderer HPCA_OVERLAY = new OrientedOverlayRenderer("multiblock/hpca");
+    public static final OrientedOverlayRenderer NETWORK_SWITCH_OVERLAY = new OrientedOverlayRenderer("multiblock/network_switch");
 
     public static final OrientedOverlayRenderer ALLOY_SMELTER_OVERLAY = new OrientedOverlayRenderer("machines/alloy_smelter");
     public static final OrientedOverlayRenderer FURNACE_OVERLAY = new OrientedOverlayRenderer("machines/furnace");
@@ -210,6 +213,7 @@ public class Textures {
     public static final ICubeRenderer TUNGSTENSTEEL_FIREBOX = new SidedCubeRenderer("casings/firebox/overlay/tungstensteel");
     public static final ICubeRenderer TUNGSTENSTEEL_FIREBOX_ACTIVE = new FireboxActiveRenderer("casings/firebox/overlay/tungstensteel/active");
     public static final ICubeRenderer COMPUTER_CASING = new SidedCubeRenderer("casings/computer/computer_casing");
+    public static final ICubeRenderer ADVANCED_COMPUTER_CASING = new SidedCubeRenderer("casings/computer/advanced_computer_casing");
 
     public static final SimpleOverlayRenderer ROTOR_HOLDER_OVERLAY = new SimpleOverlayRenderer("overlay/machine/overlay_rotor_holder");
     public static final SimpleOverlayRenderer ADV_PUMP_OVERLAY = new SimpleOverlayRenderer("overlay/machine/overlay_adv_pump");

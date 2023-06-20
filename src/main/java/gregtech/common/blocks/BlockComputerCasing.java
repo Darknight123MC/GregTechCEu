@@ -22,7 +22,8 @@ public class BlockComputerCasing extends VariantBlock<BlockComputerCasing.Casing
 
         COMPUTER_CASING("computer_casing"),
         COMPUTER_HEAT_VENT("computer_heat_vent"),
-        HIGH_POWER_CASING("high_power_casing");
+        HIGH_POWER_CASING("high_power_casing"),
+        ADVANCED_COMPUTER_CASING("advanced_computer_casing");
 
         private final String name;
 

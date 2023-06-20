@@ -1,0 +1,140 @@
+{
+  "forge_marker": 1,
+  "variants": {
+    "active=false,variant=hpca_empty": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/empty"
+      }
+    },
+    "active=true,variant=hpca_empty": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/empty"
+      }
+    },
+
+    "active=false,variant=hpca_heat_sink": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/heat_sink"
+      }
+    },
+    "active=true,variant=hpca_heat_sink": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/heat_sink"
+      }
+    },
+
+    "active=false,variant=hpca_active_cooler": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/advanced_computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/advanced_computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/active_cooler"
+      }
+    },
+    "active=true,variant=hpca_active_cooler": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/advanced_computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/advanced_computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/active_cooler_active"
+      }
+    },
+
+    "active=false,variant=hpca_computation": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/computation"
+      }
+    },
+    "active=true,variant=hpca_computation": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/computation_active"
+      }
+    },
+
+    "active=false,variant=hpca_computation_high": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/advanced_computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/advanced_computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/computation_high"
+      }
+    },
+    "active=true,variant=hpca_computation_high": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/advanced_computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/advanced_computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/computation_high_active"
+      }
+    },
+
+    "active=false,variant=hpca_bridge": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/advanced_computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/advanced_computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/bridge"
+      }
+    },
+    "active=true,variant=hpca_bridge": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/advanced_computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/advanced_computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/bridge_active"
+      }
+    },
+
+    "active=false,variant=hpca_damaged": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/damaged"
+      }
+    },
+    "active=true,variant=hpca_damaged": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/damaged_active"
+      }
+    },
+
+    "active=false,variant=hpca_damaged_advanced": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/damaged_advanced"
+      }
+    },
+    "active=true,variant=hpca_damaged_advanced": {
+      "model": "minecraft:cube_bottom_top",
+      "textures": {
+        "bottom": "gregtech:blocks/casings/computer/computer_casing/bottom",
+        "top": "gregtech:blocks/casings/computer/computer_casing/top",
+        "side": "gregtech:blocks/casings/hpca/damaged_advanced_active"
+      }
+    }
+  }
+}
