@@ -14,8 +14,14 @@ import gregtech.client.renderer.texture.Textures;
 import gregtech.common.blocks.BlockComputerCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class MetaTileEntityResearchStation extends RecipeMapMultiblockController {
 
@@ -49,7 +55,7 @@ public class MetaTileEntityResearchStation extends RecipeMapMultiblockController
                         abilities(MultiblockAbility.INPUT_ENERGY).setMinGlobalLimited(1).or(
                         abilities(MultiblockAbility.MAINTENANCE_HATCH).setExactLimit(1).or(
                         abilities(MultiblockAbility.COMPUTATION_DATA_RECEPTION).setExactLimit(1)))))
-                .where('H', abilities(MultiblockAbility.OBJECT_HOLDER)) // todo fix facing
+                .where('H', abilities(MultiblockAbility.OBJECT_HOLDER)) // todo fix facing, should be forced to facing the controller
                 .build();
     }
 
@@ -85,5 +91,13 @@ public class MetaTileEntityResearchStation extends RecipeMapMultiblockController
     @Override
     protected boolean shouldShowVoidingModeButton() {
         return false;
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World world, @NotNull List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, world, tooltip, advanced);
+        tooltip.add(I18n.format("gregtech.machine.research_station.tooltip.1"));
+        tooltip.add(I18n.format("gregtech.machine.research_station.tooltip.2"));
+        tooltip.add(I18n.format("gregtech.machine.research_station.tooltip.3"));
     }
 }

@@ -18,8 +18,12 @@ import gregtech.client.renderer.texture.Textures;
 import gregtech.common.blocks.BlockComputerCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -96,7 +100,7 @@ public class MetaTileEntityNetworkSwitch extends MetaTileEntityDataBank implemen
                 .aisle("XXX", "XSX", "XXX")
                 .where('S', selfPredicate())
                 .where('A', states(getAdvancedState()))
-                .where('X', states(getCasingState()).or(
+                .where('X', states(getCasingState()).setMinGlobalLimited(7).or(
                         abilities(MultiblockAbility.INPUT_ENERGY).setMinGlobalLimited(1).or(
                         abilities(MultiblockAbility.MAINTENANCE_HATCH).setExactLimit(1).or(
                         abilities(MultiblockAbility.COMPUTATION_DATA_RECEPTION).setMinGlobalLimited(1).or(
@@ -128,6 +132,13 @@ public class MetaTileEntityNetworkSwitch extends MetaTileEntityDataBank implemen
     @Override
     protected void renderTextures(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         getFrontOverlay().renderOrientedState(renderState, translation, pipeline, getFrontFacing(), this.isActive(), this.isWorkingEnabled());
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World world, @NotNull List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("gregtech.machine.network_switch.tooltip.1"));
+        tooltip.add(I18n.format("gregtech.machine.network_switch.tooltip.2"));
+        tooltip.add(I18n.format("gregtech.machine.network_switch.tooltip.3"));
     }
 
     /** Handles computation load across multiple receivers and to multiple transmitters. */

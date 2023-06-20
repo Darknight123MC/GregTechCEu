@@ -2603,8 +2603,31 @@ tile.cleanroom_casing.filter_sterile.tooltip=Creates a §aSterilized§7 environm
 
 # Computer Casings
 tile.computer_casing.computer_casing.name=Computer Casing
+tile.computer_casing.computer_casing.tooltip=Nice and clean casing
 tile.computer_casing.computer_heat_vent.name=Computer Heat Vent
+tile.computer_casing.computer_heat_vent.tooltip=Air vent with a filter
 tile.computer_casing.high_power_casing.name=High Power Casing
+tile.computer_casing.high_power_casing.tooltip=The power levels are rising!
+tile.computer_casing.advanced_computer_casing.name=Advanced Computer Casing
+tile.computer_casing.advanced_computer_casing.tooltip=Couple thousand qubits wide
+
+# HPCA Components
+tile.hpca_component.hpca_empty.name=Empty HPCA Component
+tile.hpca_component.hpca_empty.tooltip=Just for filling space
+tile.hpca_component.hpca_heat_sink.name=HPCA Heat Sink Component
+tile.hpca_component.hpca_heat_sink.tooltip=Free cooling! Is anything free?
+tile.hpca_component.hpca_active_cooler.name=HPCA Active Cooling Component
+tile.hpca_component.hpca_active_cooler.tooltip=Less free, more effective cooling
+tile.hpca_component.hpca_computation.name=HPCA Computation Component
+tile.hpca_component.hpca_computation.tooltip=Baby's first computation
+tile.hpca_component.hpca_computation_high.name=HPCA Advanced Computation Component
+tile.hpca_component.hpca_computation_high.tooltip=Computation big leagues
+tile.hpca_component.hpca_bridge.name=HPCA Bridge Component
+tile.hpca_component.hpca_bridge.tooltip=So that's where the "Array" in HPCA comes from
+tile.hpca_component.hpca_damaged.name=Damaged HPCA Computation Component
+tile.hpca_component.hpca_damaged.tooltip=Free recyclable materials
+tile.hpca_component.hpca_damaged_advanced.name=Damaged HPCA Advanced Computation Component
+tile.hpca_component.hpca_damaged_advanced.tooltip=It only cost an arm and a leg
 
 # Asphalt
 tile.asphalt.asphalt.name=Asphalt
@@ -4568,6 +4591,21 @@ gregtech.machine.data_bank.tooltip.2=Bulk Data Storage. Transfer with Optical Ca
 gregtech.machine.data_bank.tooltip.3=Data Banks can be chained together.
 gregtech.machine.data_bank.tooltip.4=Uses %sEU/t per Data Hatch and %sEU/t when chained.
 
+gregtech.machine.research_station.name=Research Station
+gregtech.machine.research_station.tooltip.1=More than just a Multiblock Scanner
+gregtech.machine.research_station.tooltip.2=Used to scan onto Data Orbs or better
+gregtech.machine.research_station.tooltip.3=Requires Computation to work
+
+gregtech.machine.network_switch.name=Network Switch
+gregtech.machine.network_switch.tooltip.1=Ethernet Hub
+gregtech.machine.network_switch.tooltip.2=Used to route and distribute Computation
+gregtech.machine.network_switch.tooltip.3=Can combine any number of Computation Receivers into any number of Computation Transmitters
+
+gregtech.machine.high_performance_computing_array.name=High Performance Computing Array
+gregtech.machine.high_performance_computing_array.tooltip.1=Just your average Supercomputer
+gregtech.machine.high_performance_computing_array.tooltip.2=Used to generate Computation (and heat)
+gregtech.machine.high_performance_computing_array.tooltip.3=Requires HPCA components to generate CWU/t (Compute Work Units)
+
 gregtech.machine.central_monitor.name=Central Monitor
 gregtech.multiblock.central_monitor.low_power=Low Power
 gregtech.multiblock.central_monitor.height=Screen Height:
@@ -4834,7 +4872,15 @@ gregtech.machine.data_access_hatch.tooltip.2=Adds §a%s§7 slots for Data Sticks
 gregtech.machine.data_access_hatch.advanced.name=Advanced Data Access Hatch
 gregtech.machine.data_access_hatch.creative.name=Creative Data Access Hatch
 gregtech.machine.data_access_hatch.optical.receiver.name=Optical Data Reception Hatch
+gregtech.machine.data_access_hatch.optical.receiver.tooltip=Research Data Input for Multiblocks
 gregtech.machine.data_access_hatch.optical.transmitter.name=Optical Data Transmission Hatch
+gregtech.machine.data_access_hatch.optical.transmitter.tooltip=Research Data Output for Multiblocks
+gregtech.machine.computation_hatch.transmitter.name=Computation Data Transmission Hatch
+gregtech.machine.computation_hatch.transmitter.tooltip=Computation Data Output for Multiblocks
+gregtech.machine.computation_hatch.receiver.name=Computation Data Reception Hatch
+gregtech.machine.computation_hatch.receiver.tooltip=Computation Data Input for Multiblocks
+gregtech.machine.research_station.object_holder.name=Object Holder
+gregtech.machine.research_station.object_holder.tooltip=Advanced Holding Mechanism for Research Station
 
 gregtech.machine.fluid_tank.max_multiblock=Max Multiblock Size: %,dx%,dx%,d
 gregtech.machine.fluid_tank.fluid=Contains %s L of %s

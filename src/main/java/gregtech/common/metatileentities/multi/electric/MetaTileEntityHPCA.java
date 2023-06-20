@@ -28,6 +28,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
@@ -36,10 +38,12 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -218,6 +222,14 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
             //textList.add(new TextComponentString(String.format("Maximum Coolant: %s L/t", hpcaHandler.getMaximumActiveCooling())));
             //textList.add(new TextComponentTranslation("gregtech.multiblock.energy_consumption", this.hpcaHandler.));
         }
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World world, @NotNull List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, world, tooltip, advanced);
+        tooltip.add(I18n.format("gregtech.machine.high_performance_computing_array.tooltip.1"));
+        tooltip.add(I18n.format("gregtech.machine.high_performance_computing_array.tooltip.2"));
+        tooltip.add(I18n.format("gregtech.machine.high_performance_computing_array.tooltip.3"));
     }
 
     @Override
