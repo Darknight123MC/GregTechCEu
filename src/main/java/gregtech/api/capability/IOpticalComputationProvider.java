@@ -8,7 +8,7 @@ public interface IOpticalComputationProvider {
 
     /**
      * Request some amount of CWU/t (Compute Work Units per tick) from this Machine.
-     * Implementors should expect these requests to occur NO MORE THAN once per second per requester.
+     * Implementors should expect these requests to occur each tick that computation is required.
      *
      * @param cwut Maximum amount of CWU/t requested.
      * @return The amount of CWU/t that could be supplied.
