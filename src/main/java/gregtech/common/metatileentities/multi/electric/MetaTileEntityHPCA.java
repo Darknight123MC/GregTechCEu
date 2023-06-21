@@ -3,8 +3,10 @@ package gregtech.common.metatileentities.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.GTValues;
 import gregtech.api.capability.*;
 import gregtech.api.capability.impl.EnergyContainerList;
+import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -32,6 +34,8 @@ import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
@@ -41,19 +45,18 @@ import java.util.*;
 
 public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOpticalComputationProvider, IControllable {
 
-    private static final int IDLE_TEMPERATURE = 0;
-    private static final int DAMAGE_TEMPERATURE = 1000;
+    private static final double IDLE_TEMPERATURE = 0;
+    private static final double DAMAGE_TEMPERATURE = 1000;
 
     private IEnergyContainer energyContainer;
+    private IFluidHandler coolantHandler;
     private final HPCAGridHandler hpcaHandler = new HPCAGridHandler();
 
     private boolean isActive;
     private boolean isWorkingEnabled = true;
     private boolean hasNotEnoughEnergy;
 
-    private int outputComputation;
-    private int requestTimer;
-    private int temperature;
+    private double temperature;
 
     public MetaTileEntityHPCA(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -69,6 +72,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
+        this.coolantHandler = new FluidTankList(false, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         this.hpcaHandler.onStructureForm(getAbilities(MultiblockAbility.HPCA_COMPONENT));
     }
 
@@ -81,59 +85,39 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
 
     @Override
     public int requestCWUt(int cwut, boolean simulate) {
-        // todo
-        return 0;
-        //if (hasNotEnoughEnergy) {
-        //    outputComputation = 0;
-        //    requestTimer = 0;
-        //    return 0;
-        //}
-        //int cwutToSend = Math.min(cwut, hpcaHandler.getMaxCWUt());
-        //outputComputation = cwutToSend;
-        //requestTimer = 2;
-        //return cwutToSend;
+        return isStructureFormed() ? hpcaHandler.allocateCWUt(cwut, simulate) : 0;
+    }
+
+    @Override
+    public boolean canBridge() {
+        return isStructureFormed() && hpcaHandler.hasHPCABridge();
     }
 
     @Override
     protected void updateFormedValid() {
-        // energy
-        boolean consumedEnough = consumeEnergy();
-        if (!isActive()) {
-            setActive(true);
+        consumeEnergy();
+        if (isActive()) {
+            // forcibly use active coolers at full rate if temperature is half-way to damaging temperature
+            double midpoint = (DAMAGE_TEMPERATURE - IDLE_TEMPERATURE) / 2;
+            double temperatureChange = hpcaHandler.calculateTemperatureChange(coolantHandler, temperature >= midpoint);
+            if (temperature - temperatureChange <= IDLE_TEMPERATURE) {
+                temperature = IDLE_TEMPERATURE;
+            } else {
+                temperature -= temperatureChange;
+            }
+            if (temperature >= DAMAGE_TEMPERATURE) {
+                hpcaHandler.attemptDamageHPCA();
+            }
+            hpcaHandler.tick();
+        } else {
+            hpcaHandler.clearComputationCache();
+            // passively cool (slowly) if not active
+            temperature = Math.max(IDLE_TEMPERATURE, temperature - 0.5);
         }
-
-        // todo
-        // temperature and coolant
-        //calculateTemperature();
-        //if (temperature >= DAMAGE_TEMPERATURE) {
-            //boolean causedDamage = rollDamageComponent();
-            //if (causedDamage) {
-            //    invalidateStructure();
-            //    return;
-            //}
-        //}
-
-        // computation
-        //if (requestTimer > 0) {
-        //    if (consumedEnough) {
-        //        setActive(true);
-        //        requestTimer--;
-        //        if (requestTimer == 0) {
-        //            setActive(false);
-        //            requestTimer = 0;
-        //            outputComputation = 0;
-        //        }
-        //    } else {
-        //        setActive(false);
-        //        requestTimer = 0;
-        //        outputComputation = 0;
-        //    }
-        //}
     }
 
-    /** @return if successful in drawing energy */
-    private boolean consumeEnergy() {
-        int energyToConsume = getCurrentEUt();
+    private void consumeEnergy() {
+        int energyToConsume = hpcaHandler.getCurrentEUt();
         boolean hasMaintenance = ConfigHolder.machines.enableMaintenance && hasMaintenanceMechanics();
         if (hasMaintenance) {
             // 10% more energy per maintenance problem
@@ -148,31 +132,20 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
             if (!hasNotEnoughEnergy) {
                 long consumed = this.energyContainer.removeEnergy(energyToConsume);
                 if (consumed == -energyToConsume) {
+                    setActive(true);
                     if (hasMaintenance) {
                         calculateMaintenance(1);
                     }
-                    return true;
                 } else {
                     this.hasNotEnoughEnergy = true;
+                    setActive(false);
                 }
             }
         } else {
             this.hasNotEnoughEnergy = true;
+            setActive(false);
         }
-        return false;
     }
-
-    /*
-    private void calculateTemperature() {
-        if (isActive()) {
-            temperature += hpcaHandler.getMaxCoolantDemand() * (1.0 * outputComputation / hpcaHandler.getMaxCoolantDemand());
-        }
-        int temperatureToLower = Math.min(temperature, hpcaHandler.getMaxCoolantProduction()); // do not go below 0
-
-
-        int coolantToUse = hpcaHandler.getMaximumActiveCooling();
-        temperature -= temperatureToLower;
-    }*/
 
     @NotNull
     @Override
@@ -267,11 +240,12 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (isStructureFormed()) {
-            //textList.add(new TextComponentString(String.format("Maximum Computation: %d CWU/t", hpcaHandler.getMaxCWUt())));
-            //textList.add(new TextComponentString(String.format("Maximum Power: %d EU/t", hpcaHandler.getMaxEUt())));
-            //textList.add(new TextComponentString(String.format("Current Power Usage: %d EU/t", getCurrentEUt())));
-            //textList.add(new TextComponentString(String.format("Maximum Coolant Demand: %d CU/t", hpcaHandler.getMaxCoolantDemand())));
-            //textList.add(new TextComponentString(String.format("Maximum Coolant Supply: %d CU/t", hpcaHandler.getMaxCoolantProduction())));
+            textList.add(new TextComponentString(String.format("Maximum Computation: %d CWU/t", hpcaHandler.getMaxCWUt())));
+            textList.add(new TextComponentString(String.format("Maximum Power: %d EU/t", hpcaHandler.getMaximumEUt())));
+            textList.add(new TextComponentString(String.format("Current Power Usage: %d EU/t", hpcaHandler.getCurrentEUt())));
+            textList.add(new TextComponentString(String.format("Maximum Cooling Demand: %d CU/t", hpcaHandler.getMaxCoolantDemand())));
+            textList.add(new TextComponentString(String.format("Maximum Cooling Supply: %d CU/t", hpcaHandler.getMaxCoolingAmount())));
+            textList.add(new TextComponentString(String.format("Maximum Coolant Demand: %d L/t", hpcaHandler.getMaxCoolantDemand())));
 
             List<String> hints = hpcaHandler.getPossibleHints();
             if (!hints.isEmpty()) {
@@ -287,7 +261,6 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
                 textList.add(hintComponent);
             }
 
-            //textList.add(new TextComponentString(String.format("Maximum Coolant: %s L/t", hpcaHandler.getMaximumActiveCooling())));
             //textList.add(new TextComponentTranslation("gregtech.multiblock.energy_consumption", this.hpcaHandler.));
         }
     }
@@ -305,21 +278,6 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
         return false;
     }
 
-    // todo
-    private int getCurrentEUt() {
-        return isStructureFormed() ? hpcaHandler.getUpkeepEUt() : 0;
-        //if (isStructureFormed()) {
-        //    if (isActive()) {
-        //        // energy draw is proportional to the amount of actively used computation
-        //        // (b - a) * (c / d) + a
-        //        return (int) ((hpcaHandler.getMaxEUt() - hpcaHandler.getPassiveEUt()) * (1.0 * outputComputation / hpcaHandler.getMaxCWUt()) + hpcaHandler.getPassiveEUt());
-        //    } else {
-        //        return hpcaHandler.getPassiveEUt();
-        //    }
-        //}
-        //return 0;
-    }
-
     @SideOnly(Side.CLIENT)
     @Override
     public SoundEvent getSound() {
@@ -331,7 +289,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
         super.writeToNBT(data);
         data.setBoolean("isActive", this.isActive);
         data.setBoolean("isWorkingEnabled", this.isWorkingEnabled);
-        data.setInteger("temperature", this.temperature);
+        data.setDouble("temperature", this.temperature);
         return data;
     }
 
@@ -340,7 +298,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
         super.readFromNBT(data);
         this.isActive = data.getBoolean("isActive");
         this.isWorkingEnabled = data.getBoolean("isWorkingEnabled");
-        this.temperature = data.getInteger("temperature");
+        this.temperature = data.getDouble("temperature");
     }
 
     @Override
@@ -386,11 +344,8 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
         private final Set<IHPCAComputationProvider> computationProviders = new HashSet<>();
         private int numBridges;
 
-        private int maximumCoolantPerTick = -1;
-        private int totalMaximumCooling = -1;
-        private int maximumActiveCooling = -1;
-        private int maximumCWUt = -1;
-        private int maximumEUt = -1;
+        // transaction info
+        private int allocatedCWUt;
 
         private void onStructureForm(Collection<IHPCAComponentHatch> components) {
             reset();
@@ -413,84 +368,185 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOp
         }
 
         private void reset() {
-            // reset state, lazily evaluated
+            clearComputationCache();
             components.clear();
             coolantProviders.clear();
             computationProviders.clear();
             numBridges = 0;
-
-            // todo ???
-            maximumCoolantPerTick = -1;
-            totalMaximumCooling = -1;
-            maximumActiveCooling = -1;
-            maximumCWUt = -1;
-            maximumEUt = -1;
         }
 
-        // todo is this how this should be done? idk
-        /** The passive EU/t drain for this multi. EU/t will never be lower than this. */
-        private int getUpkeepEUt() {
+        private void clearComputationCache() {
+            allocatedCWUt = 0;
+        }
+
+        private void tick() {
+            if (allocatedCWUt != 0) {
+                allocatedCWUt = 0;
+            }
+        }
+
+        /**
+         * Calculate the temperature differential this tick given active computation and consume coolant.
+         *
+         * @param coolantTank         The tank to drain coolant from.
+         * @param forceCoolWithActive Whether active coolers should forcibly cool even if temperature is already
+         *                            decreasing due to passive coolers. Used when the HPCA is running very hot.
+         * @return The temperature change, can be positive or negative.
+         */
+        private double calculateTemperatureChange(IFluidHandler coolantTank, boolean forceCoolWithActive) {
+            // calculate temperature increase
+            int maxCWUt = getMaxCWUt();
+            int maxCoolingDemand = getMaxCoolingDemand();
+
+            // temperature increase is proportional to the amount of actively used computation
+            // a * (b / c)
+            int temperatureIncrease = Math.max(1, (int) (maxCoolingDemand * (1.0 * allocatedCWUt / maxCWUt)));
+
+            // calculate temperature decrease
+            int maxPassiveCooling = 0;
+            int maxActiveCooling = 0;
+            int maxCoolantDrain = 0;
+
+            for (var coolantProvider : coolantProviders) {
+                if (coolantProvider.isActiveCooler()) {
+                    maxActiveCooling += coolantProvider.getCoolingAmount();
+                    maxCoolantDrain += coolantProvider.getMaxCoolantPerTick();
+                } else {
+                    maxPassiveCooling += coolantProvider.getCoolingAmount();
+                }
+            }
+
+            // todo somewhere, the actual fluid type needs to be enforced
+            double temperatureChange = temperatureIncrease - maxPassiveCooling;
+            // quick exit if no active cooling/coolant drain is present
+            if (maxActiveCooling == 0 && maxCoolantDrain == 0) {
+                return temperatureChange;
+            }
+            if (forceCoolWithActive || maxActiveCooling <= temperatureChange) {
+                // try to fully utilize active coolers
+                FluidStack fs = coolantTank.drain(maxCoolantDrain, true);
+                if (fs != null) {
+                    int coolantDrained = fs.amount;
+                    if (coolantDrained == maxCoolantDrain) {
+                        // coolant requirement was fully met
+                        temperatureChange -= maxActiveCooling;
+                    } else {
+                        // coolant requirement was only partially met, cool proportional to fluid amount drained
+                        // a * (b / c)
+                        temperatureChange -= maxActiveCooling * (1.0 * coolantDrained / maxCoolantDrain);
+                    }
+                }
+            } else if (temperatureChange > 0) {
+                // try to partially utilize active coolers to stabilize to zero
+                double temperatureToDecrease = Math.min(temperatureChange, maxActiveCooling);
+                int coolantToDrain = Math.max(1, (int) (maxCoolantDrain * (temperatureToDecrease / maxActiveCooling)));
+                FluidStack fs = coolantTank.drain(coolantToDrain, true);
+                if (fs != null) {
+                    int coolantDrained = fs.amount;
+                    if (coolantDrained == coolantToDrain) {
+                        // successfully stabilized to zero
+                        return 0;
+                    } else {
+                        // coolant requirement was only partially met, cool proportional to fluid amount drained
+                        // a * (b / c)
+                        temperatureChange -= temperatureToDecrease * (1.0 * coolantDrained / coolantToDrain);
+                    }
+                }
+            }
+            return temperatureChange;
+        }
+
+        /** Roll a 1% chance to damage a HPCA component marked as damageable. Randomly selects the component. */
+        private void attemptDamageHPCA() {
+            // 1% chance each tick to damage a component if running too hot
+            if (GTValues.RNG.nextFloat() <= 0.01) {
+                // randomize which component is actually damaged
+                List<IHPCAComponentHatch> candidates = new ArrayList<>();
+                for (var component : components) {
+                    if (component.canBeDamaged()) {
+                        candidates.add(component);
+                    }
+                }
+                if (!candidates.isEmpty()) {
+                    candidates.get(GTValues.RNG.nextInt(candidates.size())).setDamaged(true);
+                }
+            }
+        }
+
+        /** Allocate computation on a given request. Allocates for one tick. */
+        private int allocateCWUt(int cwut, boolean simulate) {
+            int maxCWUt = getMaxCWUt();
+            int availableCWUt = maxCWUt - this.allocatedCWUt;
+            int toAllocate = Math.min(cwut, availableCWUt);
+            if (!simulate) {
+                this.allocatedCWUt += toAllocate;
+            }
+            return toAllocate;
+        }
+
+        /** The maximum amount of CWUs (Compute Work Units) created per tick. */
+        private int getMaxCWUt() {
+            int maxCWUt = 0;
+            for (var computationProvider : computationProviders) {
+                maxCWUt += computationProvider.getCWUPerTick();
+            }
+            return maxCWUt;
+        }
+
+        /** The current EU/t this HPCA should use, considering passive drain, current computation, etc.. */
+        private int getCurrentEUt() {
+            int maximumEUt = getMaximumEUt();
+            int maximumCWUt = getMaxCWUt();
             int upkeepEUt = 0;
             for (var component : components) {
                 upkeepEUt += component.getUpkeepEUt();
             }
-            return upkeepEUt;
+
+            // energy draw is proportional to the amount of actively used computation
+            //  (b - a) * (c / d) + a
+            return (int) ((maximumEUt - upkeepEUt) * (1.0 * allocatedCWUt / maximumCWUt) + upkeepEUt);
         }
 
-
-        /** The maximum amount of "coolant" this could need if running at 100% *//*
-        private int getMaxCoolantDemand() {
-            if (maximumCoolantPerTick == -1) {
-                maximumCoolantPerTick = components.stream()
-                        .mapToInt(IHPCAComponent::getMaxCoolantDemandPerTick)
-                        .sum();
-            }
-            return maximumCoolantPerTick;
-        }*/
-
-        /** How much "coolant" this can currently make. *//*
-        private int getMaxCoolantProduction() {
-            if (totalMaximumCooling == -1) {
-                totalMaximumCooling = components.stream()
-                        .filter(IHPCAComponent::isCoolantProvider)
-                        .mapToInt(IHPCAComponent::getMaxCoolantPerTick)
-                        .sum();
-            }
-            return totalMaximumCooling;
-        }*/
-
-        /** Maximum amount of coolant in L/t to consume if running at 100% computation. *//*
-        private int getMaximumActiveCooling() {
-            if (maximumActiveCooling == -1) {
-                maximumActiveCooling = components.stream()
-                        .filter(IHPCAComponent::isCoolantProvider)
-                        .mapToInt(IHPCAComponent::getMaxActiveCoolantPerTick)
-                        .sum();
-            }
-            return maximumActiveCooling;
-        }*/
-
-        /** The maximum amount of CWUs (Compute Work Units) created per tick. *//*
-        private int getMaxCWUt() {
-            if (maximumCWUt == -1) {
-                maximumCWUt = components.stream()
-                        .filter(IHPCAComponent::isCWUProvider)
-                        .mapToInt(IHPCAComponent::getMaxCWUPerTick)
-                        .sum();
-            }
-            return maximumCWUt;
-        }*/
-
-        /** The maximum EU/t drain for this multi. EU/t will be proportional to the amount of computation used. *//*
-        private int getMaxEUt() {
-            if (maximumEUt == -1) {
-                maximumEUt = 0;
-                for (var component : currentComponents) {
-                    maximumEUt += component.getMaxEUt();
-                }
+        /** The maximum EU/t that this HPCA could ever use with the given configuration. */
+        private int getMaximumEUt() {
+            int maximumEUt = 0;
+            for (var component : components) {
+                maximumEUt += component.getMaxEUt();
             }
             return maximumEUt;
-        }*/
+        }
+
+        /** Whether this HPCA has a Bridge to allow connecting to other HPCA's */
+        private boolean hasHPCABridge() {
+            return numBridges > 0;
+        }
+
+        /** How much cooling this HPCA can provide. NOT related to coolant fluid consumption. */
+        private int getMaxCoolingAmount() {
+            int maxCooling = 0;
+            for (var coolantProvider : coolantProviders) {
+                maxCooling += coolantProvider.getCoolingAmount();
+            }
+            return maxCooling;
+        }
+
+        /** How much cooling this HPCA can require. NOT related to coolant fluid consumption. */
+        private int getMaxCoolingDemand() {
+            int maxCooling = 0;
+            for (var computationProvider : computationProviders) {
+                maxCooling += computationProvider.getCoolantPerTick();
+            }
+            return maxCooling;
+        }
+
+        /** How much coolant this HPCA can consume in a tick, in L/t. */
+        private int getMaxCoolantDemand() {
+            int maxCoolant = 0;
+            for (var coolantProvider : coolantProviders) {
+                maxCoolant += coolantProvider.getMaxCoolantPerTick();
+            }
+            return maxCoolant;
+        }
 
         /**
          * A list of hints for the controller to display.

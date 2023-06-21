@@ -21,6 +21,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,6 +76,12 @@ public class MetaTileEntityNetworkSwitch extends MetaTileEntityDataBank implemen
         return 0;
     }
 
+    // allows chaining Network Switches together
+    @Override
+    public boolean canBridge() {
+        return true;
+    }
+
     @NotNull
     @Override
     protected BlockPattern createStructurePattern() {
@@ -123,6 +130,12 @@ public class MetaTileEntityNetworkSwitch extends MetaTileEntityDataBank implemen
         tooltip.add(I18n.format("gregtech.machine.network_switch.tooltip.1"));
         tooltip.add(I18n.format("gregtech.machine.network_switch.tooltip.2"));
         tooltip.add(I18n.format("gregtech.machine.network_switch.tooltip.3"));
+    }
+
+    @Override
+    protected void addDisplayText(List<ITextComponent> textList) {
+        super.addDisplayText(textList);
+        // todo warn if non-bridging enabled computation providers are connected
     }
 
     /** Handles computation load across multiple receivers and to multiple transmitters. */

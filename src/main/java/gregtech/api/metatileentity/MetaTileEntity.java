@@ -812,7 +812,7 @@ public abstract class MetaTileEntity implements ICoverable, IVoidable {
         }
     }
 
-    public final ItemStack getStackForm(int amount) {
+    public ItemStack getStackForm(int amount) {
         int metaTileEntityIntId = GregTechAPI.MTE_REGISTRY.getIdByObjectName(metaTileEntityId);
         return new ItemStack(GregTechAPI.MACHINE, amount, metaTileEntityIntId);
     }

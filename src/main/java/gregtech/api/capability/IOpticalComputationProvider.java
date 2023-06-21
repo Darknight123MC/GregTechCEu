@@ -14,4 +14,10 @@ public interface IOpticalComputationProvider {
      * @return The amount of CWU/t that could be supplied.
      */
     int requestCWUt(int cwut, boolean simulate);
+
+    /**
+     * Whether this Computation Provider can "Bridge" with other Computation Providers.
+     * Checked by machines like the Network Switch.
+     */
+    boolean canBridge();
 }

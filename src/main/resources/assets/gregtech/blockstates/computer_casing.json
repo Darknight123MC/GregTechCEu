@@ -41,6 +41,30 @@
           "south": "gregtech:blocks/casings/computer/advanced_computer_casing/side",
           "west": "gregtech:blocks/casings/computer/advanced_computer_casing/side"
         }
+      },
+      "damaged_hpca_component": {
+        "model": "minecraft:cube",
+        "textures": {
+          "particle": "gregtech:blocks/casings/computer/damaged_hpca_component_side",
+          "down": "gregtech:blocks/casings/computer/computer_casing/bottom",
+          "up": "gregtech:blocks/casings/computer/computer_casing/top",
+          "north": "gregtech:blocks/casings/computer/damaged_hpca_component_side",
+          "east": "gregtech:blocks/casings/computer/computer_casing/side",
+          "south": "gregtech:blocks/casings/computer/computer_casing/side",
+          "west": "gregtech:blocks/casings/computer/computer_casing/side"
+        }
+      },
+      "damaged_advanced_hpca_component": {
+        "model": "minecraft:cube",
+        "textures": {
+          "particle": "gregtech:blocks/casings/computer/damaged_advanced_hpca_component_side",
+          "down": "gregtech:blocks/casings/computer/advanced_computer_casing/bottom",
+          "up": "gregtech:blocks/casings/computer/advanced_computer_casing/top",
+          "north": "gregtech:blocks/casings/computer/damaged_advanced_hpca_component_side",
+          "east": "gregtech:blocks/casings/computer/advanced_computer_casing/side",
+          "south": "gregtech:blocks/casings/computer/advanced_computer_casing/side",
+          "west": "gregtech:blocks/casings/computer/advanced_computer_casing/side"
+        }
       }
     }
   }

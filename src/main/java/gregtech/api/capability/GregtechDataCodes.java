@@ -130,6 +130,9 @@ public class GregtechDataCodes {
     // Detector Covers
     public static final int UPDATE_INVERTED = 100;
 
+    // HPCA / Research Station
+    public static final int DAMAGE_STATE = 222;
+
     // NBT Keys
 
     // From MetaTileEntityHolder
