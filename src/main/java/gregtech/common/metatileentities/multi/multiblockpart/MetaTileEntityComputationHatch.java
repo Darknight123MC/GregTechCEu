@@ -38,11 +38,11 @@ public class MetaTileEntityComputationHatch extends MetaTileEntityMultiblockPart
     }
 
     @Override
-    public int requestCWUt(int cwut) {
+    public int requestCWUt(int cwut, boolean simulate) {
         if (isTransmitter()) {
             // Ask the Multiblock controller, which *should* be an IOpticalComputationProvider
             if (getController() instanceof IOpticalComputationProvider provider) {
-                return provider.requestCWUt(cwut);
+                return provider.requestCWUt(cwut, simulate);
             } else {
                 GTLog.logger.error("Computation Transmission Hatch could not get CWU/t from its controller!");
                 return 0;

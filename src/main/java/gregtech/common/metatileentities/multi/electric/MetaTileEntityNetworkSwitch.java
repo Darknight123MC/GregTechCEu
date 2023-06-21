@@ -69,25 +69,9 @@ public class MetaTileEntityNetworkSwitch extends MetaTileEntityDataBank implemen
         computationHandler.reset();
     }
 
-    @Override
-    public void setActive(boolean active) {
-        super.setActive(active);
-        if (!active) {
-            computationHandler.clearRequests();
-        }
-    }
-
-    @Override
-    public void setWorkingEnabled(boolean isWorkingAllowed) {
-        super.setWorkingEnabled(isWorkingAllowed);
-        if (!isWorkingAllowed) {
-            computationHandler.clearRequests();
-        }
-    }
-
     // todo
     @Override
-    public int requestCWUt(int cwut) {
+    public int requestCWUt(int cwut, boolean simulate) {
         return 0;
     }
 
@@ -144,46 +128,32 @@ public class MetaTileEntityNetworkSwitch extends MetaTileEntityDataBank implemen
     /** Handles computation load across multiple receivers and to multiple transmitters. */
     private static class MultipleComputationHandler {
 
-        private List<IOpticalComputationHatch> providers; // todo can this be a set?
-        private List<IOpticalComputationHatch> transmitters; // todo can this be a set?
-        private final Set<ComputationRequest> activeRequests = new HashSet<>();
+        private int maxComputationBuffer;
+        private int computationBuffer;
 
-        private void tick() {
-            if (activeRequests.size() > 0) {
-                activeRequests.removeIf(ComputationRequest::tick);
-            }
-        }
+        private final Set<IOpticalComputationHatch> providers = new HashSet<>();
+        private final Set<IOpticalComputationHatch> transmitters = new HashSet<>();
 
         private void onStructureForm(Collection<IOpticalComputationHatch> providers, Collection<IOpticalComputationHatch> transmitters) {
             reset();
-            this.providers = new ArrayList<>(providers);
-            this.transmitters = new ArrayList<>(transmitters);
+            this.providers.addAll(providers);
+            this.transmitters.addAll(transmitters);
+
+            long buffer = 0;
+            for (var provider : this.providers) {
+                buffer += provider.requestCWUt(Integer.MAX_VALUE, true) * 20L;
+            }
+            // avoid overflow
+            this.maxComputationBuffer = buffer >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) buffer;
         }
 
         private void reset() {
-            clearRequests();
-            providers = null;
-            transmitters = null;
+            providers.clear();
+            transmitters.clear();
         }
 
-        /** Clear all current computation requests. For example: when machine runs out of energy or is disabled. */
-        private void clearRequests() {
-            activeRequests.clear();
-        }
-    }
+        private void tick() {
 
-    private static class ComputationRequest {
-
-        private int remainingTime;
-
-        private ComputationRequest() {
-            remainingTime = 20;
-        }
-
-        /** @return If this request is expired. */
-        private boolean tick() {
-            remainingTime--;
-            return remainingTime == 0;
         }
     }
 }

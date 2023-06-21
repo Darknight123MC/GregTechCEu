@@ -261,6 +261,20 @@ public class Textures {
     public static final SimpleOverlayRenderer OPTICAL_DATA_ACCESS_HATCH = new SimpleOverlayRenderer("overlay/machine/overlay_data_hatch_optical");
     public static final SimpleOverlayRenderer OBJECT_HOLDER_OVERLAY = new SimpleOverlayRenderer("overlay/machine/overlay_object_holder");
     public static final SimpleOverlayRenderer OBJECT_HOLDER_ACTIVE_OVERLAY = new SimpleOverlayRenderer("overlay/machine/overlay_object_holder_active");
+    public static final SimpleOverlayRenderer HPCA_ACTIVE_COOLER_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/active_cooler");
+    public static final SimpleOverlayRenderer HPCA_ACTIVE_COOLER_ACTIVE_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/active_cooler_active");
+    public static final SimpleOverlayRenderer HPCA_BRIDGE_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/bridge");
+    public static final SimpleOverlayRenderer HPCA_BRIDGE_ACTIVE_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/bridge_active");
+    public static final SimpleOverlayRenderer HPCA_COMPUTATION_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/computation");
+    public static final SimpleOverlayRenderer HPCA_COMPUTATION_ACTIVE_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/computation_active");
+    public static final SimpleOverlayRenderer HPCA_ADVANCED_COMPUTATION_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/computation_advanced");
+    public static final SimpleOverlayRenderer HPCA_ADVANCED_COMPUTATION_ACTIVE_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/computation_advanced_active");
+    public static final SimpleOverlayRenderer HPCA_DAMAGED_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/damaged");
+    public static final SimpleOverlayRenderer HPCA_DAMAGED_ACTIVE_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/damaged_active");
+    public static final SimpleOverlayRenderer HPCA_ADVANCED_DAMAGED_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/damaged_advanced");
+    public static final SimpleOverlayRenderer HPCA_ADVANCED_DAMAGED_ACTIVE_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/damaged_advanced_active");
+    public static final SimpleOverlayRenderer HPCA_EMPTY_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/empty");
+    public static final SimpleOverlayRenderer HPCA_HEAT_SINK_OVERLAY = new SimpleOverlayRenderer("overlay/machine/hpca/heat_sink");
 
     public static final SimpleOverlayRenderer COVER_INTERFACE_FLUID = new SimpleOverlayRenderer("cover/cover_interface_fluid");
     public static final SimpleOverlayRenderer COVER_INTERFACE_FLUID_GLASS = new SimpleOverlayRenderer("cover/cover_interface_fluid_glass");

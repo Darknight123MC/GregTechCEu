@@ -13,5 +13,5 @@ public interface IOpticalComputationProvider {
      * @param cwut Maximum amount of CWU/t requested.
      * @return The amount of CWU/t that could be supplied.
      */
-    int requestCWUt(int cwut);
+    int requestCWUt(int cwut, boolean simulate);
 }

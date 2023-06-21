@@ -13,5 +13,5 @@ public interface IOpticalComputationHatch {
      * @param cwut How much CWU/t to try and get.
      * @return How much CWU/t is available.
      */
-    int requestCWUt(int cwut);
+    int requestCWUt(int cwut, boolean simulate);
 }

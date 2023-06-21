@@ -3,30 +3,23 @@ package gregtech.common.metatileentities.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregtech.api.capability.GregtechDataCodes;
-import gregtech.api.capability.GregtechTileCapabilities;
-import gregtech.api.capability.IControllable;
-import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.*;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
-import gregtech.api.metatileentity.multiblock.IHPCAComponent;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
 import gregtech.api.pattern.BlockPattern;
 import gregtech.api.pattern.FactoryBlockPattern;
 import gregtech.api.pattern.PatternMatchContext;
-import gregtech.api.pattern.TraceabilityPredicate;
 import gregtech.client.renderer.ICubeRenderer;
 import gregtech.client.renderer.texture.Textures;
+import gregtech.common.ConfigHolder;
 import gregtech.common.blocks.BlockComputerCasing;
-import gregtech.common.blocks.BlockHPCAComponent;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.metatileentities.multi.multiblockpart.hpca.MetaTileEntityHPCABridge;
 import gregtech.core.sound.GTSoundEvents;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -35,7 +28,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
@@ -47,16 +39,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IControllable {
+public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements IOpticalComputationProvider, IControllable {
 
-    // Match Context Headers
-    private static final String HPCA_COMPONENT_HEADER = "HPCAComponents";
+    private static final int IDLE_TEMPERATURE = 0;
+    private static final int DAMAGE_TEMPERATURE = 1000;
 
     private IEnergyContainer energyContainer;
     private final HPCAGridHandler hpcaHandler = new HPCAGridHandler();
 
     private boolean isActive;
     private boolean isWorkingEnabled = true;
+    private boolean hasNotEnoughEnergy;
+
+    private int outputComputation;
+    private int requestTimer;
+    private int temperature;
 
     public MetaTileEntityHPCA(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -72,8 +69,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
-        Object2ObjectMap<BlockPos, IHPCAComponent> components = context.get(HPCA_COMPONENT_HEADER);
-        this.hpcaHandler.onStructureForm(components.values());
+        this.hpcaHandler.onStructureForm(getAbilities(MultiblockAbility.HPCA_COMPONENT));
     }
 
     @Override
@@ -84,9 +80,99 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
     }
 
     @Override
-    protected void updateFormedValid() {
-        // todo :p
+    public int requestCWUt(int cwut, boolean simulate) {
+        // todo
+        return 0;
+        //if (hasNotEnoughEnergy) {
+        //    outputComputation = 0;
+        //    requestTimer = 0;
+        //    return 0;
+        //}
+        //int cwutToSend = Math.min(cwut, hpcaHandler.getMaxCWUt());
+        //outputComputation = cwutToSend;
+        //requestTimer = 2;
+        //return cwutToSend;
     }
+
+    @Override
+    protected void updateFormedValid() {
+        // energy
+        boolean consumedEnough = consumeEnergy();
+        if (!isActive()) {
+            setActive(true);
+        }
+
+        // todo
+        // temperature and coolant
+        //calculateTemperature();
+        //if (temperature >= DAMAGE_TEMPERATURE) {
+            //boolean causedDamage = rollDamageComponent();
+            //if (causedDamage) {
+            //    invalidateStructure();
+            //    return;
+            //}
+        //}
+
+        // computation
+        //if (requestTimer > 0) {
+        //    if (consumedEnough) {
+        //        setActive(true);
+        //        requestTimer--;
+        //        if (requestTimer == 0) {
+        //            setActive(false);
+        //            requestTimer = 0;
+        //            outputComputation = 0;
+        //        }
+        //    } else {
+        //        setActive(false);
+        //        requestTimer = 0;
+        //        outputComputation = 0;
+        //    }
+        //}
+    }
+
+    /** @return if successful in drawing energy */
+    private boolean consumeEnergy() {
+        int energyToConsume = getCurrentEUt();
+        boolean hasMaintenance = ConfigHolder.machines.enableMaintenance && hasMaintenanceMechanics();
+        if (hasMaintenance) {
+            // 10% more energy per maintenance problem
+            energyToConsume += getNumMaintenanceProblems() * energyToConsume / 10;
+        }
+
+        if (this.hasNotEnoughEnergy && energyContainer.getInputPerSec() > 19L * energyToConsume) {
+            this.hasNotEnoughEnergy = false;
+        }
+
+        if (this.energyContainer.getEnergyStored() >= energyToConsume) {
+            if (!hasNotEnoughEnergy) {
+                long consumed = this.energyContainer.removeEnergy(energyToConsume);
+                if (consumed == -energyToConsume) {
+                    if (hasMaintenance) {
+                        calculateMaintenance(1);
+                    }
+                    return true;
+                } else {
+                    this.hasNotEnoughEnergy = true;
+                }
+            }
+        } else {
+            this.hasNotEnoughEnergy = true;
+        }
+        return false;
+    }
+
+    /*
+    private void calculateTemperature() {
+        if (isActive()) {
+            temperature += hpcaHandler.getMaxCoolantDemand() * (1.0 * outputComputation / hpcaHandler.getMaxCoolantDemand());
+        }
+        int temperatureToLower = Math.min(temperature, hpcaHandler.getMaxCoolantProduction()); // do not go below 0
+
+
+        int coolantToUse = hpcaHandler.getMaximumActiveCooling();
+        temperature -= temperatureToLower;
+    }*/
 
     @NotNull
     @Override
@@ -100,7 +186,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
                 .where('S', selfPredicate())
                 .where('A', states(getAdvancedState()))
                 .where('V', states(getVentState()))
-                .where('X', hpcaComponentPredicate())
+                .where('X', abilities(MultiblockAbility.HPCA_COMPONENT))
                 .where('C', states(getCasingState()).or(
                         abilities(MultiblockAbility.MAINTENANCE_HATCH).setExactLimit(1).or(
                         abilities(MultiblockAbility.INPUT_ENERGY).setMinGlobalLimited(1).or(
@@ -124,25 +210,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
         return MetaBlocks.COMPUTER_CASING.getState(BlockComputerCasing.CasingType.COMPUTER_HEAT_VENT);
     }
 
-    @NotNull
-    private static TraceabilityPredicate hpcaComponentPredicate() {
-        return new TraceabilityPredicate(state -> {
-            Block block = state.getBlockState().getBlock();
-            if (!(block instanceof BlockHPCAComponent componentBlock)) {
-                return false;
-            }
-            IHPCAComponent component = componentBlock.getState(state.getBlockState());
-            Object2ObjectMap<BlockPos, IHPCAComponent> components = state.getMatchContext().get(HPCA_COMPONENT_HEADER);
-            if (components == null) {
-                components = new Object2ObjectOpenHashMap<>();
-                state.getMatchContext().set(HPCA_COMPONENT_HEADER, components);
-            }
-            components.put(state.getPos(), component);
-            return true;
-        });
-    }
-
-    // todo example JEI structure
+    // todo example JEI structures
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
@@ -199,11 +267,11 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (isStructureFormed()) {
-            textList.add(new TextComponentString(String.format("Maximum Computation: %d CWU/t", hpcaHandler.getMaxCWUt())));
-            textList.add(new TextComponentString(String.format("Maximum Power: %d EU/t", hpcaHandler.getMaxEUt())));
-            textList.add(new TextComponentString(String.format("Current Power Usage: %d EU/t", getCurrentEUt())));
-            textList.add(new TextComponentString(String.format("Maximum Coolant Demand: %d CU/t", hpcaHandler.getMaxCoolantDemand())));
-            textList.add(new TextComponentString(String.format("Maximum Coolant Supply: %d CU/t", hpcaHandler.getMaxCoolantProduction())));
+            //textList.add(new TextComponentString(String.format("Maximum Computation: %d CWU/t", hpcaHandler.getMaxCWUt())));
+            //textList.add(new TextComponentString(String.format("Maximum Power: %d EU/t", hpcaHandler.getMaxEUt())));
+            //textList.add(new TextComponentString(String.format("Current Power Usage: %d EU/t", getCurrentEUt())));
+            //textList.add(new TextComponentString(String.format("Maximum Coolant Demand: %d CU/t", hpcaHandler.getMaxCoolantDemand())));
+            //textList.add(new TextComponentString(String.format("Maximum Coolant Supply: %d CU/t", hpcaHandler.getMaxCoolantProduction())));
 
             List<String> hints = hpcaHandler.getPossibleHints();
             if (!hints.isEmpty()) {
@@ -237,16 +305,19 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
         return false;
     }
 
+    // todo
     private int getCurrentEUt() {
-        if (isStructureFormed()) {
-            if (isActive()) {
-                // todo
-                return 0;
-            } else {
-                return hpcaHandler.getPassiveEUt();
-            }
-        }
-        return 0;
+        return isStructureFormed() ? hpcaHandler.getUpkeepEUt() : 0;
+        //if (isStructureFormed()) {
+        //    if (isActive()) {
+        //        // energy draw is proportional to the amount of actively used computation
+        //        // (b - a) * (c / d) + a
+        //        return (int) ((hpcaHandler.getMaxEUt() - hpcaHandler.getPassiveEUt()) * (1.0 * outputComputation / hpcaHandler.getMaxCWUt()) + hpcaHandler.getPassiveEUt());
+        //    } else {
+        //        return hpcaHandler.getPassiveEUt();
+        //    }
+        //}
+        //return 0;
     }
 
     @SideOnly(Side.CLIENT)
@@ -260,6 +331,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
         super.writeToNBT(data);
         data.setBoolean("isActive", this.isActive);
         data.setBoolean("isWorkingEnabled", this.isWorkingEnabled);
+        data.setInteger("temperature", this.temperature);
         return data;
     }
 
@@ -268,6 +340,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
         super.readFromNBT(data);
         this.isActive = data.getBoolean("isActive");
         this.isWorkingEnabled = data.getBoolean("isWorkingEnabled");
+        this.temperature = data.getInteger("temperature");
     }
 
     @Override
@@ -307,19 +380,32 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
     // Handles the logic of this structure's specific HPCA component grid
     private static class HPCAGridHandler {
 
-        private List<IHPCAComponent> currentComponents; // todo test if Set will work here
+        // structure info
+        private final Set<IHPCAComponentHatch> components = new HashSet<>();
+        private final Set<IHPCACoolantProvider> coolantProviders = new HashSet<>();
+        private final Set<IHPCAComputationProvider> computationProviders = new HashSet<>();
+        private int numBridges;
 
         private int maximumCoolantPerTick = -1;
         private int totalMaximumCooling = -1;
         private int maximumActiveCooling = -1;
         private int maximumCWUt = -1;
-        private int passiveEUt = -1;
         private int maximumEUt = -1;
-        private List<String> hints = null;
 
-        private void onStructureForm(Collection<IHPCAComponent> components) {
+        private void onStructureForm(Collection<IHPCAComponentHatch> components) {
             reset();
-            currentComponents = new ArrayList<>(components);
+            for (var component : components) {
+                this.components.add(component);
+                if (component instanceof IHPCACoolantProvider coolantProvider) {
+                    this.coolantProviders.add(coolantProvider);
+                }
+                if (component instanceof IHPCAComputationProvider computationProvider) {
+                    this.computationProviders.add(computationProvider);
+                }
+                if (component instanceof MetaTileEntityHPCABridge) {
+                    this.numBridges++;
+                }
+            }
         }
 
         private void onStructureInvalidate() {
@@ -328,71 +414,74 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
 
         private void reset() {
             // reset state, lazily evaluated
-            currentComponents = null;
+            components.clear();
+            coolantProviders.clear();
+            computationProviders.clear();
+            numBridges = 0;
+
+            // todo ???
             maximumCoolantPerTick = -1;
             totalMaximumCooling = -1;
             maximumActiveCooling = -1;
             maximumCWUt = -1;
-            passiveEUt = -1;
             maximumEUt = -1;
-            hints = null;
         }
 
-        /** The maximum amount of "coolant" this could need if running at 100% */
+        // todo is this how this should be done? idk
+        /** The passive EU/t drain for this multi. EU/t will never be lower than this. */
+        private int getUpkeepEUt() {
+            int upkeepEUt = 0;
+            for (var component : components) {
+                upkeepEUt += component.getUpkeepEUt();
+            }
+            return upkeepEUt;
+        }
+
+
+        /** The maximum amount of "coolant" this could need if running at 100% *//*
         private int getMaxCoolantDemand() {
             if (maximumCoolantPerTick == -1) {
-                maximumCoolantPerTick = currentComponents.stream()
+                maximumCoolantPerTick = components.stream()
                         .mapToInt(IHPCAComponent::getMaxCoolantDemandPerTick)
                         .sum();
             }
             return maximumCoolantPerTick;
-        }
+        }*/
 
-        /** How much "coolant" this can currently make. */
+        /** How much "coolant" this can currently make. *//*
         private int getMaxCoolantProduction() {
             if (totalMaximumCooling == -1) {
-                totalMaximumCooling = currentComponents.stream()
+                totalMaximumCooling = components.stream()
                         .filter(IHPCAComponent::isCoolantProvider)
                         .mapToInt(IHPCAComponent::getMaxCoolantPerTick)
                         .sum();
             }
             return totalMaximumCooling;
-        }
+        }*/
 
-        /** Maximum amount of coolant to consume if running at 100% computation. */
+        /** Maximum amount of coolant in L/t to consume if running at 100% computation. *//*
         private int getMaximumActiveCooling() {
             if (maximumActiveCooling == -1) {
-                maximumActiveCooling = currentComponents.stream()
+                maximumActiveCooling = components.stream()
                         .filter(IHPCAComponent::isCoolantProvider)
                         .mapToInt(IHPCAComponent::getMaxActiveCoolantPerTick)
                         .sum();
             }
             return maximumActiveCooling;
-        }
+        }*/
 
-        /** The maximum amount of CWUs (Compute Work Units) created per tick. */
+        /** The maximum amount of CWUs (Compute Work Units) created per tick. *//*
         private int getMaxCWUt() {
             if (maximumCWUt == -1) {
-                maximumCWUt = currentComponents.stream()
+                maximumCWUt = components.stream()
                         .filter(IHPCAComponent::isCWUProvider)
                         .mapToInt(IHPCAComponent::getMaxCWUPerTick)
                         .sum();
             }
             return maximumCWUt;
-        }
+        }*/
 
-        /** The passive EU/t drain for this multi. EU/t will never be lower than this. */
-        private int getPassiveEUt() {
-            if (passiveEUt == -1) {
-                passiveEUt = 0;
-                for (var component : currentComponents) {
-                    passiveEUt += component.getUpkeepEUt();
-                }
-            }
-            return passiveEUt;
-        }
-
-        /** The maximum EU/t drain for this multi. EU/t will be proportional to the amount of computation used. */
+        /** The maximum EU/t drain for this multi. EU/t will be proportional to the amount of computation used. *//*
         private int getMaxEUt() {
             if (maximumEUt == -1) {
                 maximumEUt = 0;
@@ -401,7 +490,7 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
                 }
             }
             return maximumEUt;
-        }
+        }*/
 
         /**
          * A list of hints for the controller to display.
@@ -412,28 +501,27 @@ public class MetaTileEntityHPCA extends MultiblockWithDisplayBase implements ICo
          */
         @NotNull
         private List<String> getPossibleHints() {
-            if (hints == null) {
-                hints = new ArrayList<>();
+            List<String> hints = new ArrayList<>();
 
-                // Damaged component present
-                if (currentComponents.stream().anyMatch(IHPCAComponent::isDamaged)) {
-                    hints.add("Damaged HPCA Component found in structure!");
-                }
-
-                // More than 1 bridge present
-                if (currentComponents.stream().filter(IHPCAComponent::isHCPABridge).count() > 1) {
-                    hints.add("More HPCA Bridges than necessary, more than one provides no additional benefit!");
-                }
-
-                // No computation units present
-                if (currentComponents.stream().noneMatch(IHPCAComponent::isCWUProvider)) {
-                    hints.add("No HPCA Computation providers found! No computation can be done");
-                }
-
-                if (getMaxCoolantDemand() > getMaxCoolantProduction()) {
-                    hints.add("HPCA will overheat if run at maximum computation, not enough coolant potential!");
-                }
+            // Damaged component present
+            if (components.stream().anyMatch(IHPCAComponentHatch::isDamaged)) {
+                hints.add("Damaged HPCA Component found in structure!");
             }
+
+            // More than 1 bridge present
+            if (numBridges > 1) {
+                hints.add("More HPCA Bridges than necessary, more than one provides no additional benefit!");
+            }
+
+            // No computation units present
+            if (computationProviders.isEmpty()) {
+                hints.add("No HPCA Computation providers found! No computation can be done");
+            }
+
+            // todo
+            //if (getMaxCoolantDemand() > getMaxCoolantProduction()) {
+            //    hints.add("HPCA will overheat if run at maximum computation, not enough coolant potential!");
+            //}
             return hints;
         }
     }

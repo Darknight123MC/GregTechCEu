@@ -27,6 +27,10 @@ import gregtech.common.metatileentities.multi.electric.centralmonitor.MetaTileEn
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeCombustionEngine;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import gregtech.common.metatileentities.multi.multiblockpart.*;
+import gregtech.common.metatileentities.multi.multiblockpart.hpca.MetaTileEntityHPCABridge;
+import gregtech.common.metatileentities.multi.multiblockpart.hpca.MetaTileEntityHPCAComputation;
+import gregtech.common.metatileentities.multi.multiblockpart.hpca.MetaTileEntityHPCACooler;
+import gregtech.common.metatileentities.multi.multiblockpart.hpca.MetaTileEntityHPCAEmpty;
 import gregtech.common.metatileentities.multi.steam.MetaTileEntitySteamGrinder;
 import gregtech.common.metatileentities.multi.steam.MetaTileEntitySteamOven;
 import gregtech.common.metatileentities.primitive.MetaTileEntityCharcoalPileIgniter;
@@ -138,6 +142,12 @@ public class MetaTileEntities {
     public static MetaTileEntityComputationHatch COMPUTATION_HATCH_RECEIVER;
     public static MetaTileEntityComputationHatch COMPUTATION_HATCH_TRANSMITTER;
     public static MetaTileEntityObjectHolder OBJECT_HOLDER;
+    public static MetaTileEntityHPCAEmpty HPCA_EMPTY_COMPONENT;
+    public static MetaTileEntityHPCAComputation HPCA_COMPUTATION_COMPONENT;
+    public static MetaTileEntityHPCAComputation HPCA_ADVANCED_COMPUTATION_COMPONENT;
+    public static MetaTileEntityHPCACooler HPCA_HEAT_SINK_COMPONENT;
+    public static MetaTileEntityHPCACooler HPCA_ACTIVE_COOLER_COMPONENT;
+    public static MetaTileEntityHPCABridge HPCA_BRIDGE_COMPONENT;
     // Used for addons if they wish to disable certain tiers of machines
     private static final Map<String, Boolean> MID_TIER = new HashMap<>();
     private static final Map<String, Boolean> HIGH_TIER = new HashMap<>();
@@ -640,7 +650,14 @@ public class MetaTileEntities {
         COMPUTATION_HATCH_RECEIVER = registerMetaTileEntity(1409, new MetaTileEntityComputationHatch(gregtechId("computation_hatch.receiver"), false));
         COMPUTATION_HATCH_TRANSMITTER = registerMetaTileEntity(1410, new MetaTileEntityComputationHatch(gregtechId("computation_hatch.transmitter"), true));
         OBJECT_HOLDER = registerMetaTileEntity(1411, new MetaTileEntityObjectHolder(gregtechId("research_station.object_holder")));
-        // Free Range: 1408-1509
+        HPCA_EMPTY_COMPONENT = registerMetaTileEntity(1412, new MetaTileEntityHPCAEmpty(gregtechId("hpca.empty_component")));
+        HPCA_COMPUTATION_COMPONENT = registerMetaTileEntity(1413, new MetaTileEntityHPCAComputation(gregtechId("hpca.computation_component"), false));
+        HPCA_ADVANCED_COMPUTATION_COMPONENT = registerMetaTileEntity(1414, new MetaTileEntityHPCAComputation(gregtechId("hpca.advanced_computation_component"), true));
+        HPCA_HEAT_SINK_COMPONENT = registerMetaTileEntity(1415, new MetaTileEntityHPCACooler(gregtechId("hpca.heat_sink_component"), false));
+        HPCA_ACTIVE_COOLER_COMPONENT = registerMetaTileEntity(1416, new MetaTileEntityHPCACooler(gregtechId("hpca.active_cooler_component"), true));
+        HPCA_BRIDGE_COMPONENT = registerMetaTileEntity(1417, new MetaTileEntityHPCABridge(gregtechId("hpca.bridge_component")));
+
+        // Free Range: 1418-1509
 
         // Buffers, IDs 1510-1512
         BUFFER[0] = registerMetaTileEntity(1510, new MetaTileEntityBuffer(gregtechId("buffer.lv"), 1));
