@@ -1,5 +1,5 @@
 <p align="center"><img src="https://user-images.githubusercontent.com/37029404/233205606-a7bb352a-eb0c-4484-9fc8-820255b996a4.png" alt="Logo"></p>
-<h1 align="center">GregTech CE: Unofficial</h1>
+<h1 align="center">GregTech CE: Unofficial Child Happy Edition</h1>
 <p align="center"><i>A fork of GregTech Community Edition by the Gregtech CEu development team</i></p>
 <h1 align="center">
     <a href="https://www.curseforge.com/minecraft/mc-mods/gregtech-ce-unofficial"><img src="https://img.shields.io/badge/Available%20for-MC%201.12.2%20-informational?style=for-the-badge" alt="Supported Versions"></a>
