@@ -1445,10 +1445,12 @@ public abstract class MetaTileEntity implements ICoverable, IVoidable {
     }
 
     public void doExplosion(float explosionPower) {
+        /*
         setExploded();
         getWorld().setBlockToAir(getPos());
         getWorld().createExplosion(null, getPos().getX() + 0.5, getPos().getY() + 0.5, getPos().getZ() + 0.5,
                 explosionPower, ConfigHolder.machines.doesExplosionDamagesTerrain);
+         */
     }
 
     /**

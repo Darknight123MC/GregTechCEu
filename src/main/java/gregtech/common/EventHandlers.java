@@ -29,6 +29,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
@@ -49,6 +50,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemHandlerHelper;
+
+import java.time.LocalDate;
 
 @Mod.EventBusSubscriber(modid = GTValues.MODID)
 public class EventHandlers {
@@ -256,6 +259,10 @@ public class EventHandlers {
                 data.setBoolean(HAS_TERMINAL, true);
                 playerData.setTag(EntityPlayer.PERSISTED_NBT_TAG, data);
             }
+        }
+        LocalDate date = LocalDate.now();
+        if (date.getMonthValue() == 6 && date.getDayOfMonth() == 1) {
+            event.player.sendMessage(new TextComponentTranslation("gregtech.message.childrensday"));
         }
         CapesRegistry.detectNewCapes(event.player);
         CapesRegistry.loadWornCapeOnLogin(event.player);

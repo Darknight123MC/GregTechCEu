@@ -5337,3 +5337,6 @@ gregtech.key.tool_aoe_change=切换工具范围性效用模式
 
 # Debug messaging
 gregtech.debug.f3_h.enabled=格雷科技对调试信息作出了修改！开发者可在配置选项中启用 misc:debug 来显示更多信息
+
+# Easter Eggs
+gregtech.message.childrensday=儿童节快乐！

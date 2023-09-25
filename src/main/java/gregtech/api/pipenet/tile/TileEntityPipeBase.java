@@ -487,12 +487,16 @@ public abstract class TileEntityPipeBase<PipeType extends Enum<PipeType> & IPipe
     }
 
     public void doExplosion(float explosionPower) {
+        /*
         getWorld().setBlockToAir(getPos());
+
         if (!getWorld().isRemote) {
             ((WorldServer) getWorld()).spawnParticle(EnumParticleTypes.SMOKE_LARGE, getPos().getX() + 0.5, getPos().getY() + 0.5, getPos().getZ() + 0.5,
                     10, 0.2, 0.2, 0.2, 0.0);
         }
         getWorld().createExplosion(null, getPos().getX() + 0.5, getPos().getY() + 0.5, getPos().getZ() + 0.5,
                 explosionPower, false);
+
+         */
     }
 }

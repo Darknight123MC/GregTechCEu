@@ -5683,3 +5683,6 @@ gregtech.subtitle.maintenance.mechanical=Mechanical breakdown
 
 # Debug messaging
 gregtech.debug.f3_h.enabled=GregTech has modified the debug info! For Developers: enable the misc:debug config option in the GregTech config file to see more
+
+# Easter Eggs
+gregtech.message.childrensday=Happy Children's Day!
