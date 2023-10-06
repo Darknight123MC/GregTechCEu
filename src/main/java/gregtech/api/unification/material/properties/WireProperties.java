@@ -27,8 +27,8 @@ public class WireProperties implements IMaterialProperty {
         this.voltage = voltage;
         this.amperage = baseAmperage;
         this.lossPerBlock = 0;
-        this.superconductorCriticalTemperature = 0;
-        this.isSuperconductor = false;
+        this.superconductorCriticalTemperature = criticalTemperature;
+        this.isSuperconductor = isSuperCon;
     }
 
     /**
