@@ -61,7 +61,7 @@ public class RecipeBuilder<R extends RecipeBuilder<R>> {
     protected boolean hidden = false;
     protected GTRecipeCategory category;
     protected boolean isCTRecipe = false;
-    protected int parallel = 2;
+    protected int parallel = 0;
     protected Consumer<R> onBuildAction = null;
     protected EnumValidationResult recipeStatus = EnumValidationResult.VALID;
     protected IRecipePropertyStorage recipePropertyStorage = null;

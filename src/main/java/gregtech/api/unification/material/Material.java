@@ -925,17 +925,17 @@ public class Material implements Comparable<Material> {
         }
 
         public Builder cableProperties(long voltage, int amperage, int loss) {
-            cableProperties((int) voltage, amperage, loss, true);
+            cableProperties((int) voltage, amperage, loss, false);
             return this;
         }
 
         public Builder cableProperties(long voltage, int amperage, int loss, boolean isSuperCon) {
-            properties.setProperty(PropertyKey.WIRE, new WireProperties((int) voltage, amperage, loss, true));
+            properties.setProperty(PropertyKey.WIRE, new WireProperties((int) voltage, amperage, loss, isSuperCon));
             return this;
         }
 
         public Builder cableProperties(long voltage, int amperage, int loss, boolean isSuperCon, int criticalTemperature) {
-            properties.setProperty(PropertyKey.WIRE, new WireProperties((int) voltage, amperage, loss, true, criticalTemperature));
+            properties.setProperty(PropertyKey.WIRE, new WireProperties((int) voltage, amperage, loss, isSuperCon, criticalTemperature));
             return this;
         }
 
