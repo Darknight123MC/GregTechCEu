@@ -5136,6 +5136,10 @@ gregtech.muffler.recovery_tooltip=§b收集几率：§f%d%%
 gregtech.machine.pump_hatch.name=水泵输出仓
 gregtech.machine.pump_hatch.tooltip=原始水泵专用流体输出口
 
+gregtech.machine.rainbow_miner.name=彩虹矿工
+gregtech.machine.rainbow_miner.tooltip=输出随机类型的矿石
+gregtech.universal.tooltip.rainbow_miner_redstone=在顶部输入红石信号以启动工作
+
 gregtech.machine.machine_hatch.name=机器访问接口
 gregtech.machine.machine_hatch.locked=机器接口已锁定
 gregtech.machine.machine_hatch.machines=机器：%s
@@ -6223,4 +6227,12 @@ gregtech.scanner.forestry.butterfly=§o蝴蝶（已扫描）
 gregtech.scanner.forestry.larvae=§o幼体（已扫描）
 gregtech.scanner.forestry.serum=§o血清（已扫描）
 gregtech.scanner.forestry.caterpillar=§o幼虫（已扫描）
-gregtech.scanner.forestry.pollen=§o花粉（已扫描）
+gregtech.scanner.forestry.pollen=§o花粉（已扫描）tile.gt_explosive.breaking_tooltip=Primes explosion when mined, sneak mine to pick back up
+tile.gt_explosive.lighting_tooltip=Cannot be lit with Redstone
+tile.powderbarrel.name=Powderbarrel
+tile.powderbarrel.drops_tooltip=Slightly larger than TNT, drops all destroyed Blocks as Items
+entity.Powderbarrel.name=Powderbarrel
+tile.itnt.name=Industrial TNT
+tile.itnt.drops_tooltip=Much larger than TNT, drops all destroyed Blocks as Items
+entity.ITNT.name=Industrial TNT
+tile.gt_explosive.breaking_tooltip=Primes explosion when mined, sneak mine to pick back up

@@ -33,6 +33,7 @@ import gregtech.common.metatileentities.electric.MetaTileEntityItemCollector;
 import gregtech.common.metatileentities.electric.MetaTileEntityMagicEnergyAbsorber;
 import gregtech.common.metatileentities.electric.MetaTileEntityMiner;
 import gregtech.common.metatileentities.electric.MetaTileEntityPump;
+import gregtech.common.metatileentities.electric.MetaTileEntityRainbowMiner;
 import gregtech.common.metatileentities.electric.MetaTileEntityRockBreaker;
 import gregtech.common.metatileentities.electric.MetaTileEntitySingleCombustion;
 import gregtech.common.metatileentities.electric.MetaTileEntitySingleTurbine;
@@ -367,6 +368,8 @@ public class MetaTileEntities {
     public static MetaTileEntityAlarm ALARM;
 
     public static MetaTileEntityConverter[][] ENERGY_CONVERTER = new MetaTileEntityConverter[4][GTValues.V.length];
+
+    public static MetaTileEntityRainbowMiner RAINBOW_MINER;
 
     //spotless:on
 
@@ -1164,6 +1167,11 @@ public class MetaTileEntities {
             NONUPLE_EXPORT_HATCH[index + 1] = registerMetaTileEntity(1795 + index,
                     new MetaTileEntityMultiFluidHatch(gregtechId("fluid_hatch.export_9x." + tierName), i, 9, true));
         }
+
+        RAINBOW_MINER = registerMetaTileEntity(1900,
+                new MetaTileEntityRainbowMiner(gregtechId("rainbow_miner")));
+
+
 
         /*
          * FOR ADDON DEVELOPERS:

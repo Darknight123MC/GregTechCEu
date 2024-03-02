@@ -572,15 +572,15 @@ public class GTUtility {
      */
     public static final Function<Integer, Integer> defaultTankSizeFunction = tier -> {
         if (tier <= GTValues.LV)
-            return 8000;
+            return 8000000;
         if (tier == GTValues.MV)
-            return 12000;
+            return 12000000;
         if (tier == GTValues.HV)
-            return 16000;
+            return 16000000;
         if (tier == GTValues.EV)
-            return 32000;
+            return 32000000;
         // IV+
-        return 64000;
+        return 64000000;
     };
 
     /**
@@ -590,11 +590,11 @@ public class GTUtility {
      */
     public static final Function<Integer, Integer> hvCappedTankSizeFunction = tier -> {
         if (tier <= GTValues.LV)
-            return 8000;
+            return 8000000;
         if (tier == GTValues.MV)
-            return 12000;
+            return 12000000;
         // HV+
-        return 16000;
+        return 16000000;
     };
 
     /**
@@ -604,11 +604,11 @@ public class GTUtility {
      */
     public static final Function<Integer, Integer> largeTankSizeFunction = tier -> {
         if (tier <= GTValues.LV)
-            return 32000;
+            return 32000000;
         if (tier == GTValues.MV)
-            return 48000;
+            return 48000000;
         // HV+
-        return 64000;
+        return 64000000;
     };
 
     /**
