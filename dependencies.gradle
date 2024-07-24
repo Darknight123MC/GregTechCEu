@@ -58,7 +58,7 @@ dependencies {
     compileOnly rfg.deobf("curse.maven:chisel-235279:2915375") // Chisel 1.0.2.45
     compileOnly rfg.deobf("curse.maven:littletiles-257818:4750222") // LittleTiles 1.5.82-1.12.2
     compileOnly rfg.deobf("curse.maven:creativecore-257814:4722163") // Creative Core 1.10.71
-    compileOnly rfg.deobf("curse.maven:tinkers-construct-74072:2902483") // Tinker's Construct 2.13.0.183
+    devOnlyNonPublishable rfg.deobf("curse.maven:tinkers-construct-74072:2902483") // Tinker's Construct 2.13.0.183
 
     // Mods with Soft compat but which have no need to be in code, such as isModLoaded() checks and getModItem() recipes.
     // Uncomment any of these to test them in-game.
@@ -69,5 +69,5 @@ dependencies {
     // runtimeOnlyNonPublishable rfg.deobf("curse.maven:magic-bees-65764:2855061") // Magic Bees 3.2.25
     // runtimeOnlyNonPublishable rfg.deobf("curse.maven:gendustry-70492:2516215") // Gendustry 1.6.5.8
     // runtimeOnlyNonPublishable rfg.deobf("curse.maven:bdlib-70496:2518031") // BdLib 1.14.3.12
-    // runtimeOnlyNonPublishable rfg.deobf("curse.maven:mantle-74924:2713386") // Mantle 1.3.3.55
+    devOnlyNonPublishable rfg.deobf("curse.maven:mantle-74924:2713386") // Mantle 1.3.3.55
 }

@@ -10,13 +10,30 @@ import gregtech.api.unification.Elements;
 import gregtech.api.unification.material.info.MaterialFlag;
 import gregtech.api.unification.material.info.MaterialFlags;
 import gregtech.api.unification.material.info.MaterialIconSet;
-import gregtech.api.unification.material.properties.*;
+import gregtech.api.unification.material.properties.BlastProperty;
+import gregtech.api.unification.material.properties.DustProperty;
+import gregtech.api.unification.material.properties.FluidPipeProperties;
+import gregtech.api.unification.material.properties.FluidProperty;
+import gregtech.api.unification.material.properties.GemProperty;
+import gregtech.api.unification.material.properties.IMaterialProperty;
+import gregtech.api.unification.material.properties.IngotProperty;
+import gregtech.api.unification.material.properties.ItemPipeProperties;
+import gregtech.api.unification.material.properties.MaterialProperties;
+import gregtech.api.unification.material.properties.OreProperty;
+import gregtech.api.unification.material.properties.PolymerProperty;
+import gregtech.api.unification.material.properties.PropertyKey;
+import gregtech.api.unification.material.properties.RotorProperty;
+import gregtech.api.unification.material.properties.TCMaterialProperty;
+import gregtech.api.unification.material.properties.ToolProperty;
+import gregtech.api.unification.material.properties.WireProperties;
+import gregtech.api.unification.material.properties.WoodProperty;
 import gregtech.api.unification.material.registry.MaterialRegistry;
 import gregtech.api.unification.stack.MaterialStack;
 import gregtech.api.util.FluidTooltipUtil;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.LocalizationUtils;
 import gregtech.api.util.SmallDigits;
+import gregtech.integration.tinkers.utils.StatsCalculatorUtil;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.ResourceLocation;
@@ -35,7 +52,11 @@ import stanhebben.zenscript.annotations.ZenGetter;
 import stanhebben.zenscript.annotations.ZenMethod;
 import stanhebben.zenscript.annotations.ZenOperator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
@@ -1061,6 +1082,14 @@ public class Material implements Comparable<Material> {
 
         public Builder itemPipeProperties(int priority, float stacksPerSec) {
             properties.setProperty(PropertyKey.ITEM_PIPE, new ItemPipeProperties(priority, stacksPerSec));
+            return this;
+        }
+
+        public Builder tcMaterial(Consumer<TCMaterialProperty> consumer, boolean isCopyByToolProp) {
+            var property = new TCMaterialProperty();
+            consumer.accept(property);
+            if (isCopyByToolProp) StatsCalculatorUtil.processStats(property, properties);
+            properties.setProperty(PropertyKey.TC_MATERIAL, property);
             return this;
         }
 
